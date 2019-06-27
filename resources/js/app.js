@@ -7,7 +7,10 @@
 require('./bootstrap');
 
 window.Vue = require('vue');
+window.vmEvents = new Vue();
 
+import { router } from './services/routes';
+import App from './components/App.vue';
 
 /**
  * The following block of code may be used to automatically register your
@@ -27,6 +30,8 @@ files.keys().map(key => Vue.component(key.split('/').pop().split('.')[0], files(
  * or customize the JavaScript scaffolding to fit your unique needs.
  */
 
-const vm = new Vue({
-  el: '#app'
+
+new Vue({
+  el: '#app',
+  components: { App }, router
 });
