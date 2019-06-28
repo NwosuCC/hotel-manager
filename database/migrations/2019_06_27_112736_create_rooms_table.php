@@ -18,7 +18,7 @@ class CreateRoomsTable extends Migration
           $table->string('name'); // e.g. A1,B2, C4
           $table->unsignedBigInteger('hotel_id');
           $table->unsignedBigInteger('room_type_id');
-          $table->unsignedBigInteger('image_file_id');
+          $table->unsignedBigInteger('image_file_id')->nullable();
           $table->timestamps();
           $table->softDeletes();
 

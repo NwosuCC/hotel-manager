@@ -15,6 +15,14 @@ class RoomTypesController extends Controller
 
     public function index()
     {
+      $room_types = RoomType::query()->latest()->get();
+
+      return response()->json( $room_types );
+    }
+
+
+    public function paginate()
+    {
       $room_types = RoomType::query()->latest()->paginate(2);
 
       return RoomTypeResource::collection( $room_types );
@@ -76,8 +84,15 @@ class RoomTypesController extends Controller
     {
       $this->authorize('delete', $room_type);
 
+
+      if($room_type->rooms()->count()){
+        $error = 'Please, delete or re-assign rooms under this Room Type before delete it';
+        abort(400, $error);
+      }
+
       $room_type->delete();
 
       return response()->json(['message' => 'Room Type has been deleted']);
     }
+
 }

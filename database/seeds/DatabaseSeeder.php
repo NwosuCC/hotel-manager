@@ -14,5 +14,8 @@ class DatabaseSeeder extends Seeder
       $this->call(UsersTableSeeder::class);
       $this->call(HotelsTableSeeder::class);
       $this->call(RoomTypesTableSeeder::class);
+      $this->call(RoomsTableSeeder::class);
+
+      \Illuminate\Support\Facades\Artisan::call('passport:install');
     }
 }

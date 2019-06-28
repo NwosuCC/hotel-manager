@@ -73,7 +73,7 @@
     },
 
     beforeRouteEnter (to, from, next) {
-      ApiService.getRoomTypes(to.query.page, (err, data) => {
+      ApiService.getRoomTypes(to.query.page || 1, (err, data) => {
         next(vm => vm.setData(err, data));
       });
     },
@@ -81,7 +81,7 @@
     beforeRouteUpdate (to, from, next) {
       this.roomTypes = null;
 
-      ApiService.getRoomTypes(to.query.page, (err, data) => {
+      ApiService.getRoomTypes(to.query.page || 1, (err, data) => {
         this.setData(err, data);
         next();
       });
@@ -94,7 +94,7 @@
         }
         else {
           this.roomTypes = data;
-          this.pageInfo = { meta, links };
+          this.pageInfo = { meta, links, index: 'room-type.index' };
           this.setTableMinHeight();
         }
       },

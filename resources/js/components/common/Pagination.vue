@@ -34,6 +34,7 @@
         linksDefault: {
           first: null, last: null, next: null, prev: null,
         },
+        indexName: null,
       };
     },
 
@@ -86,8 +87,11 @@
         });
       },
       goToPrev() {
+        if( ! this.indexName){
+          this.indexName = this.pageInfo.index;
+        }
         this.$router.push({
-          name: 'room-type.index',
+          name: this.indexName,
           query: {
             page: this.prevPage,
           }

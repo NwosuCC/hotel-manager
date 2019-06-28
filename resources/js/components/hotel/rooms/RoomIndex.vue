@@ -1,23 +1,52 @@
 <template>
 
-  <div class="users">
+  <div class="card my-4">
 
-    <div v-if="error" class="error">
-      <p>{{ error }}</p>
-    </div>
+    <h5 class="card-header">Rooms</h5>
 
-    <ul v-if="users">
-      <li v-for="{ id, name, email } in users">
-        <strong>Name:</strong> {{ name }},
-        <strong>Email:</strong> {{ email }}
-      </li>
-    </ul>
+    <div class="card-body">
 
+      <!-- Add Button -->
+      <div class="pb-3">
+        <router-link :to="{ name: 'room.create' }" class="btn-clear info rounded pull-right">
+          <i class="la la-plus mr-2"></i> Room
+        </router-link>
+      </div>
 
-    <div class="pagination">
-      <button :disabled="! prevPage" @click.prevent="goToPrev">Previous</button>
-      {{ paginatonCount }}
-      <button :disabled="! nextPage" @click.prevent="goToNext">Next</button>
+      <!-- List -->
+      <div class="table-responsive" :style="{'min-height': minHeight + 'px'}">
+        <table class="table" id="list-table">
+          <thead>
+          <tr>
+            <th class="border-top-0 w-25">#</th>
+            <th class="border-top-0 w-25">Name</th>
+            <th class="border-top-0 w-25">Type</th>
+            <th class="border-top-0 w-25">Actions</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr v-for="(room, i) in rooms" :key="room.id">
+            <td>{{ startIndex + i }}</td>
+            <td>{{ room.name }}</td>
+            <td>{{ room.room_type.name }}</td>
+            <td class="text-center">
+              <router-link :to="{ name: 'room.edit', params: {id: room.id} }" class="btn btn-sm btn-light btn-outline-info mr-1 py-0 px-1">
+                <i class="la la-pencil"></i>
+              </router-link>
+              <a @click="deleteItem(i, room.id)" class="btn btn-sm btn-light btn-outline-danger text-danger mr-1 py-0 px-1">
+                <i class="la la-trash"></i>
+              </a>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <hr />
+
+      <!-- Pagination -->
+      <pagination :pageInfo="pageInfo" @start:index="startIndex = $event"></pagination>
+
     </div>
 
   </div>
@@ -25,86 +54,74 @@
 </template>
 
 <script>
-  import axios from 'axios';
-
   import { ApiService } from '../../../services/api-service';
+  import Pagination from '../../common/Pagination.vue';
 
   export default {
+    name: 'RoomIndex',
+    components: {
+      'Pagination': Pagination,
+    },
+
     data() {
       return {
-        users: null,
-        meta: null,
-        links: {
-          first: null, last: null, next: null, prev: null,
-        },
+        eventBus: vmEvents,
+        rooms: [],
+        pageInfo: null,
         error: null,
+        minHeight: 0,
+        startIndex: 1,
       };
     },
-    computed: {
-      nextPage() {
-        if ( ! this.meta || this.meta.current_page === this.meta.last_page) {
-          return;
-        }
 
-        return this.meta.current_page + 1;
-      },
-      prevPage() {
-        if ( ! this.meta || this.meta.current_page === 1) {
-          return;
-        }
-
-        return this.meta.current_page - 1;
-      },
-      paginatonCount() {
-        if ( ! this.meta) {
-          return;
-        }
-
-        const { current_page, last_page } = this.meta;
-
-        return `${current_page} of ${last_page}`;
-      },
-    },
     beforeRouteEnter (to, from, next) {
-      ApiService.getUsers(to.query.page, (err, data) => {
+      ApiService.getRooms(to.query.page, (err, data) => {
         next(vm => vm.setData(err, data));
       });
     },
-    // when route changes and this component is already rendered, the logic will be slightly different.
-    beforeRouteUpdate (to, from, next) {
-      this.users = this.links = this.meta = null;
 
-      ApiService.getUsers(to.query.page, (err, data) => {
+    beforeRouteUpdate (to, from, next) {
+      this.rooms = null;
+
+      ApiService.getRooms(to.query.page, (err, data) => {
         this.setData(err, data);
         next();
       });
     },
+
     methods: {
-      goToNext() {
-        this.$router.push({
-          query: {
-            page: this.nextPage,
-          },
-        });
-      },
-      goToPrev() {
-        this.$router.push({
-          name: 'user.index',
-          query: {
-            page: this.prevPage,
-          }
-        });
-      },
-      setData(err, { data: users, links, meta }) {
+      setData(err, { data, links, meta }) {
         if (err) {
           this.error = err.toString();
         }
         else {
-          this.users = users;
-          this.links = links;
-          this.meta = meta;
+          this.rooms = data;
+          this.pageInfo = { meta, links, index: 'room.index' };
+          this.setTableMinHeight();
         }
       },
+      setTableMinHeight(){
+        setTimeout(() => {
+          let newHeight = $('#list-table').outerHeight() + 20;
+          if(newHeight > this.minHeight){
+            this.minHeight = newHeight
+          }
+        }, 200);
+      },
+      deleteItem(index, id){
+        if(confirm('Delete this entry?')){
+          ApiService.deleteRoom(id, (error, data) => {
+            if(error){
+              this.errors = data.message;
+              this.eventBus.$emit('flash:data', {message: data.message, type: 'danger'});
+            }
+            else {
+              this.rooms.splice( index, 1 );
+              this.eventBus.$emit('flash:data', {message: data.message});
+            }
+          });
+        }
+      }
     }
   }
 </script>

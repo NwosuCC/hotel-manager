@@ -15,7 +15,7 @@ import Hotel from '../components/hotel/Hotel.vue';
 // import RoomTypeCreate from '../components/hotel/room-types/RoomTypeCreate.vue';
 import RoomTypeModule from '../components/hotel/room-types/RoomTypeModule.vue';
 
-import RoomIndex from '../components/hotel/rooms/RoomIndex.vue';
+import RoomModule from '../components/hotel/rooms/RoomModule.vue';
 
 import e404 from '../components/error/e404.vue';
 import {AuthService} from "./auth-service";
@@ -32,7 +32,7 @@ const router = new VueRouter({
       props: true // pass route params to target component
     },
 
-    // Array of Auth components :: [Login, Register, etc]
+    // Array de-structure of Auth components :: [Login, Register, etc]
     ...AuthModule,
     // {
     //   path: '/login',
@@ -65,12 +65,14 @@ const router = new VueRouter({
     //   ]
     // }
 
+    // Object containing the root RoomType and its sub-components :: {RoomTypeIndex, RoomTypeCreate, etc}
+    RoomModule,
+    // {
+    //   path: '/rooms',
+    //   name: 'room.index',
+    //   component: RoomIndex,
+    // },
 
-    {
-      path: '/rooms',
-      name: 'room.index',
-      component: RoomIndex,
-    },
 
     {
       path: '*',

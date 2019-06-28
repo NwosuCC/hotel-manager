@@ -30,18 +30,29 @@ Route::namespace('Api\Auth')->group(function () {
 
 Route::namespace('Api')->group(function () {
 
+  // Guest Section
   Route::get('/', 'HotelController@index');
 
   Route::get('/room-types', 'RoomTypesController@index');
+  Route::get('/room-types/paginated', 'RoomTypesController@paginate');
+  Route::get('/room-types/{room_type}', 'RoomTypesController@show');
 
   Route::get('/rooms', 'RoomsController@index');
+  Route::get('/rooms/{room}', 'RoomsController@show');
 
+
+  // Auth Section
   Route::middleware('auth:api')->group(function () {
 
+    // Room Types
     Route::post('/room-types', 'RoomTypesController@store');
-    Route::get('/room-types/{room_type}', 'RoomTypesController@show');
     Route::put('/room-types/{room_type}', 'RoomTypesController@update');
     Route::delete('/room-types/{room_type}', 'RoomTypesController@destroy');
+
+    // Rooms
+    Route::post('/rooms', 'RoomsController@store');
+    Route::put('/rooms/{room}', 'RoomsController@update');
+    Route::delete('/rooms/{room}', 'RoomsController@destroy');
 
   });
 
