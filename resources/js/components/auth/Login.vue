@@ -3,14 +3,17 @@
   <div class="container">
     <div class="row justify-content-center">
       <div class="col-md-8">
-        <div class="card">
+
+        <div class="card my-4">
           <div class="card-header">Login</div>
 
           <div class="card-body">
-            <!-- ToDo -->
-            <form method="POST" :action="route('login')">
-              <!-- ToDo -->
-              <!--@csrf-->
+
+            <ul v-if="error" class="text-danger pl-4">
+              <li class="ml-2">{{ error }}</li>
+            </ul>
+
+            <form method="POST" @submit.prevent="Login" class="pb-4 px-3">
 
               <div class="form-group row">
                 <label for="email" class="col-md-4 col-form-label text-md-right">
@@ -18,12 +21,7 @@
                 </label>
 
                 <div class="col-md-6">
-                  <input id="email" type="email" :class="{'is-invalid': hasError('email')}" class="form-control"
-                         name="email" :value="old('email')" required autocomplete="email" autofocus>
-
-                  <span class="invalid-feedback" role="alert">
-                      <strong>{{ errors.email }}</strong>
-                  </span>
+                  <input id="email" type="email" v-model="form.email" class="form-control" required autocomplete="email" autofocus>
                 </div>
               </div>
 
@@ -33,19 +31,14 @@
                 </label>
 
                 <div class="col-md-6">
-                  <input id="password" type="password" :class="{'is-invalid': hasError('password')}" class="form-control"
-                         name="password" required autocomplete="current-password" autofocus>
-
-                  <span class="invalid-feedback" role="alert">
-                      <strong>{{ errors.password }}</strong>
-                  </span>
+                  <input id="password" type="password" v-model="form.password" class="form-control" required autocomplete="current-password" autofocus>
                 </div>
               </div>
 
               <div class="form-group row">
                 <div class="col-md-6 offset-md-4">
                   <div class="form-check">
-                    <input :checked="old('remember')" class="form-check-input" type="checkbox" name="remember" id="remember">
+                    <input v-model="form.remember" class="form-check-input" type="checkbox" id="remember">
 
                     <label class="form-check-label" for="remember">
                       Remember Me
@@ -61,7 +54,7 @@
                   </button>
 
                   <!--@if (Route::has('password.request'))-->
-                  <a v-if="1" class="btn btn-link" :href="route('password.request')">
+                  <a v-if="1" class="btn btn-link" href="#">
                     Forgot Your Password?
                   </a>
                   <!--@endif-->
@@ -77,22 +70,40 @@
 </template>
 
 <script>
+  import { ApiService } from '../../services/api-service';
+  import { AuthService } from '../../services/auth-service';
+  import {StorageService} from "../../services/storage-service";
+
   export default {
     name: 'Login',
     data() {
       return {
-        errors: {}
+        eventBus: vmEvents,
+        authUser: null,
+        form: {},
+        error: null
       }
     },
+    beforeRouteEnter (to, from, next) {
+      AuthService.removeCookie();
+      vmEvents.$emit('user:authenticated', null);
+      next();
+    },
     methods: {
-      old(field){
+      Login(){
+        this.error = null;
 
-      },
-      hasError(field){
-        return this.errors.hasOwnProperty( field );
-      },
-      route(field){
-
+        ApiService.Login(this.form, (error, data) => {
+          if (error) {
+//            this.eventBus.$emit('flash:data', {message: data.message, type: 'danger'});
+            this.error = data.message;
+          }
+          else {
+            AuthService.setCookie( data );
+            StorageService.setSession( AuthService.getSessionKey(), data.id );
+            window.location.href = '/';
+          }
+        });
       }
     }
   }

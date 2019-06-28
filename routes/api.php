@@ -18,10 +18,31 @@ use Illuminate\Support\Facades\Route;
 //    return $request->user();
 //});
 
+
+// Auth Routes :: for Admin
+Route::namespace('Api\Auth')->group(function () {
+
+  Route::post('/login', 'LoginController@login');
+  Route::post('/logout', 'LoginController@logout');
+
+});
+
+
 Route::namespace('Api')->group(function () {
 
   Route::get('/', 'HotelController@index');
 
+  Route::get('/room-types', 'RoomTypesController@index');
+
   Route::get('/rooms', 'RoomsController@index');
+
+  Route::middleware('auth:api')->group(function () {
+
+    Route::post('/room-types', 'RoomTypesController@store');
+    Route::get('/room-types/{room_type}', 'RoomTypesController@show');
+    Route::put('/room-types/{room_type}', 'RoomTypesController@update');
+    Route::delete('/room-types/{room_type}', 'RoomTypesController@destroy');
+
+  });
 
 });

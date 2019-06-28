@@ -6,3 +6,49 @@
 
 // Bootstrap
 @import '~bootstrap/scss/bootstrap';
+
+
+/*-----------------------------------------------------*
+ | C U S T O M   C S S
+ *--------------------------------------------------*/
+.text-themed {
+  &.primary { @extend .text-primary; }
+  &.success { @extend .text-success; }
+  &.info { @extend .text-info; }
+  &.danger { @extend .text-danger; }
+  &.secondary { @extend .text-secondary; }
+  &.warning { @extend .text-warning; }
+}
+
+.border-themed {
+  &.primary { @extend .border-primary; }
+  &.success { @extend .border-success; }
+  &.info { @extend .border-info; }
+  &.danger { @extend .border-danger; }
+  &.secondary { @extend .border-secondary; }
+  &.warning { @extend .border-warning; }
+}
+
+.btn-clear {
+  @extend .badge, .badge-light, .badge-pill;
+  @extend .border, .bg-white, .hover !optional;
+  @extend .py-2, .px-3;
+  @extend .font-weight-normal;
+  @extend .text-themed, .border-themed;
+}
+
+/* For centered, responsive mini-forms, like site login form */
+/* 1.) Define the form container */
+.row .col-responsive {
+  //...
+  &.sm {
+    @extend .col-12, .col-sm-10, .offset-sm-1, .col-md-8, .offset-md-2, .col-lg-6, .offset-lg-3;
+  }
+}
+/* 2.) Define the form group */
+.row.form-group {
+  //...
+  & .col-form-group-responsive {
+    @extend .col-12, .col-sm-10, .offset-sm-1, .col-xl-8, .offset-xl-2;
+  }
+}

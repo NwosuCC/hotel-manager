@@ -6,8 +6,11 @@
     <div class="container">
 
       <!-- App Title -->
-      <a v-if="hotel" class="navbar-brand" href="/">
+      <router-link v-if="hotel" :to="{ name: 'home' }" class="navbar-brand">
         {{ hotel.name }}
+      </router-link>
+      <a v-else class="navbar-brand" href="/">
+        Home
       </a>
 
       <!-- Right Menu Toggle -->
@@ -20,7 +23,7 @@
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
 
         <!-- Left Side Of Navbar :: Menu Links -->
-        <ul class="navbar-nav mr-auto d-sm-flex">
+        <ul v-if="authUser" class="navbar-nav mr-auto d-sm-flex">
 
           <li class="nav-item dropdown">
 
@@ -29,7 +32,10 @@
             </a>
 
             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+
+              <router-link :to="{ name: 'room-type.index' }" class="dropdown-item">Room Types</router-link>
               <router-link :to="{ name: 'room.index' }" class="dropdown-item">Rooms</router-link>
+
             </div>
           </li>
         </ul>
@@ -46,17 +52,23 @@
             <router-link :to="{ name: 'register' }" class="nav-link">Register</router-link>
           </li>
 
+          <li v-if="authUser" class="nav-item">
+            {{ authUser.email }}
+          </li>
+
           <!-- Auth User Links -->
           <li v-if="authUser" class="nav-item dropdown">
 
             <!-- User Avatar | Menu -->
-            <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
-              authUser.name <span class="caret"></span>
+            <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              {{ authUser.name }} <span class="caret"></span>
             </a>
 
             <!-- Logout -->
             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-              <router-link :to="{ name: 'logout' }" class="nav-link">Logout</router-link>
+              <a href @click.prevent="logOut()" class="dropdown-item">
+                <i class="fa fa-power-off mt-1 mr-2"></i> Logout
+              </a>
             </div>
 
           </li>
@@ -69,6 +81,9 @@
 </template>
 
 <script>
+  import { ApiService } from '../../services/api-service';
+  import {AuthService} from "../../services/auth-service";
+
   export default {
     name: 'AppNav',
     data() {
@@ -83,7 +98,19 @@
         this.eventBus.$on('hotel:loaded', (hotel) => {
           this.hotel = hotel;
         });
+        this.eventBus.$on('user:authenticated', (user) => {
+          this.authUser = user;
+        });
       })
+    },
+    methods: {
+      logOut(){
+        AuthService.removeCookie();
+
+        ApiService.Logout({}, (error, data) => {
+          window.location.href = '';
+        });
+      }
     }
   }
 </script>

@@ -4,10 +4,11 @@
 
     <!-- Heading Row -->
     <div class="row align-items-center my-5">
+
       <div class="col-lg-7">
-        <img class="img-fluid rounded mb-4 mb-lg-0" src="images/eerie-home.jpg" alt="">
+        <img class="img-fluid rounded mb-4 mb-lg-0" :src="hotelLogo" alt="">
       </div>
-      <!-- /.col-lg-8 -->
+
       <div class="col-lg-5">
         <h1 class="font-weight-light">
           {{ hotel.name }} Hotels
@@ -78,6 +79,7 @@
 
 <script>
   import { ApiService } from '../../services/api-service';
+  import { StorageService } from '../../services/storage-service';
 
   export default {
     name: 'Hotel',
@@ -86,10 +88,16 @@
         eventBus: vmEvents,
         hotel: null,
         error: null,
-        keys: [
-          'name', 'address', 'city', 'country', 'zip_code', 'email', 'phone_number'
-        ]
+        hotelLogo: 'images/eerie-home.jpg', // ToDo: fix this into hotel :: maybe, fetch from disk
       };
+    },
+    mounted(){
+      this.$nextTick(function(){
+        // Get hold of stored Hotel info from App.vue, on any other page reload
+        this.eventBus.$on('hotel:loaded', (hotel) => {
+          this.hotel = hotel;
+        });
+      });
     },
     beforeRouteEnter (to, from, next) {
       ApiService.getHotel((err, data) => {
@@ -108,6 +116,7 @@
           this.error = err.toString();
         }
         else {
+          StorageService.setLocal('hotel', response);
           this.hotel = response;
           this.eventBus.$emit('hotel:loaded', this.hotel);
         }

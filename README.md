@@ -42,4 +42,13 @@ It consists of two major parts:
     ~~~
        php artisan passport:install
     ~~~
+    
+   NOTE: The following lines were also added to the boot() method of AuthServiceProvider class
+   ~~~
+     Passport::routes();
+
+     Passport::personalAccessClientId('1');
+
+     Passport::tokensExpireIn(now()->addDays(7));
+   ~~~
 

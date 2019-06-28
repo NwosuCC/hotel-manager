@@ -2,6 +2,8 @@
 
 namespace App;
 
+use App\Models\RoomType;
+use Laravel\Passport\HasApiTokens;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -10,6 +12,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 class User extends Authenticatable implements MustVerifyEmail
 {
   use Notifiable;
+  use HasApiTokens;
 
   /**
    * The attributes that are mass assignable.
@@ -37,5 +40,17 @@ class User extends Authenticatable implements MustVerifyEmail
   protected $casts = [
     'email_verified_at' => 'datetime',
   ];
+
+
+  // For Passport Auth Token granted at Login
+  public static function tokenName() {
+    return env('APP_TOKEN_NAME') ?? 'Hotel Manager Personal Token';
+  }
+
+
+  public function isAdmin()
+  {
+    return $this->{'role'} === 'admin';
+  }
 
 }
