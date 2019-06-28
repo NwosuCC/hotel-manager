@@ -19,7 +19,8 @@
           <thead>
           <tr>
             <th class="border-top-0 w-25">#</th>
-            <th class="border-top-0 w-50">Name</th>
+            <th class="border-top-0 w-25">Name</th>
+            <th class="border-top-0 w-25">Price</th>
             <th class="border-top-0 w-25">Actions</th>
           </tr>
           </thead>
@@ -27,6 +28,7 @@
           <tr v-for="(roomType, i) in roomTypes" :key="roomType.id">
             <td>{{ startIndex + i }}</td>
             <td>{{ roomType.name }}</td>
+            <td>{{ roomType.price }}</td>
             <td class="text-center">
               <router-link :to="{ name: 'room-type.edit', params: {id: roomType.id} }" class="btn btn-sm btn-light btn-outline-info mr-1 py-0 px-1">
                 <i class="la la-pencil"></i>

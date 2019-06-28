@@ -20,6 +20,24 @@
           </span>
         </div>
 
+        <div class="form-group">
+          <label class="col-form-label" for="price">* Price (USD)</label>
+
+          <div class="input-group mb-3">
+            <div class="input-group-prepend">
+              <span class="input-group-text">$</span>
+            </div>
+            <input type="number" min="0" step="any" id="price" v-model.number="form.price" :class="{'is-invalid': errors.price}" class="form-control" />
+            <!--<div class="input-group-append">-->
+              <!--<span class="input-group-text">.00</span>-->
+            <!--</div>-->
+          </div>
+
+          <span v-if="errors.name" class="invalid-feedback" role="alert">
+              <strong>{{ errors.price[0] }}</strong>
+          </span>
+        </div>
+
         <button type="submit" class="btn btn-primary">Save Room Type</button>
       </form>
     </div>
@@ -36,7 +54,7 @@
 
     data() {
       return {
-        form: { name: '' },
+        form: { name: '', price: null },
         errors: {},
         roomType: null
       };
@@ -55,7 +73,7 @@
     },
 
     beforeRouteUpdate (to, from, next) {
-      this.form = { name: '' };
+      this.form = { name: '', price: null };
       let id = to.params['id'] || null;
       if(id){
         ApiService.getRoomTypeDetails(id, (err, data) => {
@@ -75,7 +93,9 @@
         }
         else {
           this.roomType = data;
-          this.form = { name: this.roomType.name };
+          this.form = {
+            name: this.roomType.name, price: this.roomType.price
+          };
         }
       },
       submitRoomTypeForm(){

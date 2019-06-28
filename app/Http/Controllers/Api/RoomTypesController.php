@@ -33,12 +33,13 @@ class RoomTypesController extends Controller
     {
       $this->authorize('create', RoomType::class);
 
-      $data = $request->only('name');
+      $data = $request->only('name', 'price');
 
       $validator = Validator::make( $data, [
         'name' => [
           'required', 'string', Rule::unique('room_types', 'name')
         ],
+        'price' => ['numeric', 'min:0'],
       ]);
 
       if($validator->fails()){
@@ -61,13 +62,14 @@ class RoomTypesController extends Controller
     {
       $this->authorize('update', $room_type);
 
-      $data = $request->only('name');
+      $data = $request->only('name', 'price');
 
       $validator = Validator::make( $data, [
         'name' => [
           'required', 'string',
           Rule::unique('room_types', 'name')->whereNot('id', $room_type->{'id'})
         ],
+        'price' => ['numeric', 'min:0'],
       ]);
 
       if($validator->fails()){

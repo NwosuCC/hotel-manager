@@ -2445,13 +2445,32 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: 'RoomTypeCreate',
   data: function data() {
     return {
       form: {
-        name: ''
+        name: '',
+        price: null
       },
       errors: {},
       roomType: null
@@ -2474,7 +2493,8 @@ __webpack_require__.r(__webpack_exports__);
     var _this = this;
 
     this.form = {
-      name: ''
+      name: '',
+      price: null
     };
     var id = to.params['id'] || null;
 
@@ -2495,7 +2515,8 @@ __webpack_require__.r(__webpack_exports__);
       } else {
         this.roomType = data;
         this.form = {
-          name: this.roomType.name
+          name: this.roomType.name,
+          price: this.roomType.price
         };
       }
     },
@@ -2536,6 +2557,8 @@ __webpack_require__.r(__webpack_exports__);
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _services_api_service__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../services/api-service */ "./resources/js/services/api-service.js");
 /* harmony import */ var _common_Pagination_vue__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../common/Pagination.vue */ "./resources/js/components/common/Pagination.vue");
+//
+//
 //
 //
 //
@@ -40484,6 +40507,53 @@ var render = function() {
               : _vm._e()
           ]),
           _vm._v(" "),
+          _c("div", { staticClass: "form-group" }, [
+            _c(
+              "label",
+              { staticClass: "col-form-label", attrs: { for: "price" } },
+              [_vm._v("* Price (USD)")]
+            ),
+            _vm._v(" "),
+            _c("div", { staticClass: "input-group mb-3" }, [
+              _vm._m(0),
+              _vm._v(" "),
+              _c("input", {
+                directives: [
+                  {
+                    name: "model",
+                    rawName: "v-model.number",
+                    value: _vm.form.price,
+                    expression: "form.price",
+                    modifiers: { number: true }
+                  }
+                ],
+                staticClass: "form-control",
+                class: { "is-invalid": _vm.errors.price },
+                attrs: { type: "number", min: "0", step: "any", id: "price" },
+                domProps: { value: _vm.form.price },
+                on: {
+                  input: function($event) {
+                    if ($event.target.composing) {
+                      return
+                    }
+                    _vm.$set(_vm.form, "price", _vm._n($event.target.value))
+                  },
+                  blur: function($event) {
+                    return _vm.$forceUpdate()
+                  }
+                }
+              })
+            ]),
+            _vm._v(" "),
+            _vm.errors.name
+              ? _c(
+                  "span",
+                  { staticClass: "invalid-feedback", attrs: { role: "alert" } },
+                  [_c("strong", [_vm._v(_vm._s(_vm.errors.price[0]))])]
+                )
+              : _vm._e()
+          ]),
+          _vm._v(" "),
           _c(
             "button",
             { staticClass: "btn btn-primary", attrs: { type: "submit" } },
@@ -40494,7 +40564,16 @@ var render = function() {
     ])
   ])
 }
-var staticRenderFns = []
+var staticRenderFns = [
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: "input-group-prepend" }, [
+      _c("span", { staticClass: "input-group-text" }, [_vm._v("$")])
+    ])
+  }
+]
 render._withStripped = true
 
 
@@ -40559,6 +40638,8 @@ var render = function() {
                     _c("td", [_vm._v(_vm._s(_vm.startIndex + i))]),
                     _vm._v(" "),
                     _c("td", [_vm._v(_vm._s(roomType.name))]),
+                    _vm._v(" "),
+                    _c("td", [_vm._v(_vm._s(roomType.price))]),
                     _vm._v(" "),
                     _c(
                       "td",
@@ -40627,7 +40708,9 @@ var staticRenderFns = [
       _c("tr", [
         _c("th", { staticClass: "border-top-0 w-25" }, [_vm._v("#")]),
         _vm._v(" "),
-        _c("th", { staticClass: "border-top-0 w-50" }, [_vm._v("Name")]),
+        _c("th", { staticClass: "border-top-0 w-25" }, [_vm._v("Name")]),
+        _vm._v(" "),
+        _c("th", { staticClass: "border-top-0 w-25" }, [_vm._v("Price")]),
         _vm._v(" "),
         _c("th", { staticClass: "border-top-0 w-25" }, [_vm._v("Actions")])
       ])
