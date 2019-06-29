@@ -43,6 +43,8 @@
         let meta = this.pageInfo ? this.pageInfo.meta : this.metaDefault;
         if(meta){
           let { current_page, per_page } = meta;
+          // Send Page 'start index' to the parent
+          // Start index is the first Serial Number to appear on the table '#'-column, e.g 1 for page 1
           this.$emit('start:index', ((current_page - 1) * per_page) + 1);
         }
         return meta;
@@ -80,20 +82,20 @@
 
     methods: {
       goToNext() {
+        let { page, ...other } = Object.assign({}, this.$route.query, { page: this.nextPage });
         this.$router.push({
-          query: {
-            page: this.nextPage,
-          },
+          query: { page, ...other }
         });
       },
       goToPrev() {
         if( ! this.indexName){
           this.indexName = this.pageInfo.index;
         }
+        let { page, ...other } = Object.assign({}, this.$route.query, { page: this.prevPage });
         this.$router.push({
           name: this.indexName,
           query: {
-            page: this.prevPage,
+            query: { page, ...other }
           }
         });
       },

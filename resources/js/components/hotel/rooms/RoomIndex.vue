@@ -75,7 +75,7 @@
     },
 
     beforeRouteEnter (to, from, next) {
-      ApiService.getRooms(to.query.page, (err, data) => {
+      ApiService.getRoomsPaginated(to.query.page, (err, data) => {
         next(vm => vm.setData(err, data));
       });
     },
@@ -83,7 +83,7 @@
     beforeRouteUpdate (to, from, next) {
       this.rooms = null;
 
-      ApiService.getRooms(to.query.page, (err, data) => {
+      ApiService.getRoomsPaginated(to.query.page, (err, data) => {
         this.setData(err, data);
         next();
       });

@@ -20,7 +20,6 @@ export const ApiService = {
         callback( null, response.data );
       })
       .catch(error => {
-        console.log('ApiService error: ', error);
         callback( error, error.response.data );
       });
   },
@@ -73,10 +72,20 @@ export const ApiService = {
     ApiService.getPaginated(url, page, callback);
   },
 
+
+  // ==========================================================================
+  // H O T E L
+  // ==========================================================================
+
   getHotel(callback){
     let url = '/api/';
     ApiService.get(url, callback);
   },
+
+
+  // ==========================================================================
+  // R O O M   T Y P E S
+  // ==========================================================================
 
   getRoomTypes(page, callback){
     let url = page ? '/api/room-types/paginated' :  '/api/room-types';
@@ -113,6 +122,11 @@ export const ApiService = {
     ApiService.getPaginated(url, { params: { page } }, callback);
   },
 
+  getRoomsPaginated(page, callback){
+    let url = '/api/rooms/paginated';
+    ApiService.getPaginated(url, { params: { page } }, callback);
+  },
+
   addRoom(formData, callback){
     let url = '/api/rooms';
     ApiService.post(url, formData, callback);
@@ -130,6 +144,41 @@ export const ApiService = {
 
   deleteRoom(id, callback){
     let url = '/api/rooms/' + id;
+    ApiService.delete(url, callback);
+  },
+
+
+  // ==========================================================================
+  // B O O K I N G S
+  // ==========================================================================
+
+  getBookings(page, callback){
+    let url = '/api/bookings';
+    ApiService.getPaginated(url, { params: { page } }, callback);
+  },
+
+  getBookingsPaginated(query, callback){
+    let url = '/api/bookings/paginated';
+    ApiService.getPaginated(url, { params: query }, callback);
+  },
+
+  addBooking(formData, callback){
+    let url = '/api/bookings';
+    ApiService.post(url, formData, callback);
+  },
+
+  getBookingDetails(id, callback){
+    let url = '/api/bookings/' + id;
+    ApiService.get(url, callback);
+  },
+
+  updateBooking(formData, id, callback){
+    let url = '/api/bookings/' + id;
+    ApiService.put(url, formData, callback);
+  },
+
+  deleteBooking(id, callback){
+    let url = '/api/bookings/' + id;
     ApiService.delete(url, callback);
   },
 

@@ -21,7 +21,7 @@
             <th class="border-top-0 w-25">#</th>
             <th class="border-top-0 w-25">Name</th>
             <th class="border-top-0 w-25">Price</th>
-            <th class="border-top-0 w-25">Actions</th>
+            <th class="border-top-0 w-25 text-center">Actions</th>
           </tr>
           </thead>
           <tbody>

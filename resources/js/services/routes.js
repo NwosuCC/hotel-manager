@@ -4,21 +4,15 @@ import VueRouter from 'vue-router';
 Vue.use( VueRouter );
 
 
-// import Login from '../components/auth/Login.vue';
-// import Register from '../components/auth/Register.vue';
+import {AuthService} from "./auth-service";
+
 import AuthModule from '../components/auth/AuthModule.vue';
+import e404 from '../components/error/e404.vue';
 
 import Hotel from '../components/hotel/Hotel.vue';
-
-// import RoomType from '../components/hotel/room-types/RoomType.vue';
-// import RoomTypeIndex from '../components/hotel/room-types/RoomTypeIndex.vue';
-// import RoomTypeCreate from '../components/hotel/room-types/RoomTypeCreate.vue';
 import RoomTypeModule from '../components/hotel/room-types/RoomTypeModule.vue';
-
 import RoomModule from '../components/hotel/rooms/RoomModule.vue';
-
-import e404 from '../components/error/e404.vue';
-import {AuthService} from "./auth-service";
+import BookingModule from '../components/hotel/bookings/BookingModule.vue';
 
 
 //ToDo: using title-case 'Router' will cause an error. Find out why?
@@ -65,12 +59,20 @@ const router = new VueRouter({
     //   ]
     // }
 
-    // Object containing the root RoomType and its sub-components :: {RoomTypeIndex, RoomTypeCreate, etc}
+    // Object containing the root Room and its sub-components :: {RoomIndex, RoomCreate, etc}
     RoomModule,
     // {
     //   path: '/rooms',
     //   name: 'room.index',
     //   component: RoomIndex,
+    // },
+
+    // Object containing the root Booking and its sub-components :: {BookingIndex, BookingCreate, etc}
+    BookingModule,
+    // {
+    //   path: '/bookings',
+    //   name: 'booking.index',
+    //   component: BookingIndex,
     // },
 
 

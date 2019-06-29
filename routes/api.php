@@ -38,7 +38,12 @@ Route::namespace('Api')->group(function () {
   Route::get('/room-types/{room_type}', 'RoomTypesController@show');
 
   Route::get('/rooms', 'RoomsController@index');
+  Route::get('/rooms/paginated', 'RoomsController@paginate');
   Route::get('/rooms/{room}', 'RoomsController@show');
+
+  Route::get('/bookings', 'BookingsController@index');
+  Route::get('/bookings/paginated', 'BookingsController@paginate');
+  Route::get('/bookings/{booking}', 'BookingsController@show');
 
 
   // Auth Section
@@ -53,6 +58,11 @@ Route::namespace('Api')->group(function () {
     Route::post('/rooms', 'RoomsController@store');
     Route::put('/rooms/{room}', 'RoomsController@update');
     Route::delete('/rooms/{room}', 'RoomsController@destroy');
+
+    // Bookings
+    Route::post('/bookings', 'BookingsController@store');
+    Route::put('/bookings/{booking}', 'BookingsController@update');
+    Route::delete('/bookings/{booking}', 'BookingsController@destroy');
 
   });
 

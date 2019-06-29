@@ -16,6 +16,14 @@ class RoomsController extends Controller
 
   public function index()
   {
+    $rooms = Room::query()->with('roomType')->latest()->get();
+
+    return response()->json( $rooms );
+  }
+
+
+  public function paginate()
+  {
     $rooms = Room::query()->with('roomType')->latest()->paginate(4);
 
     return RoomResource::collection( $rooms );

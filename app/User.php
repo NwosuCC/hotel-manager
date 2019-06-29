@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Models\Booking;
 use App\Models\RoomType;
 use Laravel\Passport\HasApiTokens;
 use Illuminate\Notifications\Notifiable;
@@ -51,6 +52,18 @@ class User extends Authenticatable implements MustVerifyEmail
   public function isAdmin()
   {
     return $this->{'role'} === 'admin';
+  }
+
+
+  public function scopeNotAdmin($query)
+  {
+    return qs($query)->where('role', '!=', 'admin');
+  }
+
+
+  public function bookings()
+  {
+    return $this->hasMany( Booking::class);
   }
 
 }

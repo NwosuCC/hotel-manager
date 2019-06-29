@@ -35,6 +35,7 @@
 
               <router-link :to="{ name: 'room-type.index' }" class="dropdown-item">Room Types</router-link>
               <router-link :to="{ name: 'room.index' }" class="dropdown-item">Rooms</router-link>
+              <router-link :to="{ name: 'booking.index' }" class="dropdown-item">Bookings</router-link>
 
             </div>
           </li>
