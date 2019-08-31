@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Artisan;
 
 class DatabaseSeeder extends Seeder
 {
@@ -17,6 +18,6 @@ class DatabaseSeeder extends Seeder
       $this->call(RoomsTableSeeder::class);
       $this->call(BookingsTableSeeder::class);
 
-      \Illuminate\Support\Facades\Artisan::call('passport:install');
+      Artisan::call('passport:install');
     }
 }

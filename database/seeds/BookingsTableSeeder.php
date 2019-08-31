@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Booking;
 use Illuminate\Database\Seeder;
 
 class BookingsTableSeeder extends Seeder
@@ -11,6 +12,6 @@ class BookingsTableSeeder extends Seeder
      */
     public function run()
     {
-      factory(\App\Models\Booking::class, 17)->create();
+      factory(Booking::class, 17)->create();
     }
 }
