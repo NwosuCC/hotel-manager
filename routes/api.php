@@ -23,6 +23,7 @@ use Illuminate\Support\Facades\Route;
 Route::namespace('Api\Auth')->group(function () {
 
   Route::get('/demo', 'LoginController@demo');
+  Route::post('/register', 'RegisterController@register');
   Route::post('/login', 'LoginController@login');
   Route::post('/logout', 'LoginController@logout');
 

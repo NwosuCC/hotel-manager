@@ -7,10 +7,19 @@
           <div class="card-header">Register</div>
 
           <div class="card-body">
-            <!-- ToDo -->
-            <form method="POST" :action="route('login')">
-              <!-- ToDo -->
-              <!--@csrf-->
+            <form method="POST" @submit.prevent="Register" class="pb-4 px-3">
+              <div class="form-group row">
+                <label for="name" class="col-md-4 col-form-label text-md-right">
+                  Name
+                </label>
+
+                <div class="col-md-6">
+                  <input id="name" type="text" :class="{'is-invalid': hasError('name')}" class="form-control"
+                         v-model="form.name" required autocomplete="name" autofocus>
+
+                  <form-error-alert :error="errors.name"></form-error-alert>
+                </div>
+              </div>
 
               <div class="form-group row">
                 <label for="email" class="col-md-4 col-form-label text-md-right">
@@ -19,11 +28,9 @@
 
                 <div class="col-md-6">
                   <input id="email" type="email" :class="{'is-invalid': hasError('email')}" class="form-control"
-                         name="email" :value="old('email')" required autocomplete="email" autofocus>
+                         v-model="form.email" required autocomplete="email" autofocus>
 
-                  <span class="invalid-feedback" role="alert">
-                      <strong>{{ errors.email }}</strong>
-                  </span>
+                  <form-error-alert :error="errors.email"></form-error-alert>
                 </div>
               </div>
 
@@ -34,37 +41,34 @@
 
                 <div class="col-md-6">
                   <input id="password" type="password" :class="{'is-invalid': hasError('password')}" class="form-control"
-                         name="password" required autocomplete="current-password" autofocus>
+                         v-model="form.password" required autocomplete="current-password" autofocus>
 
-                  <span class="invalid-feedback" role="alert">
-                      <strong>{{ errors.password }}</strong>
-                  </span>
+                  <form-error-alert :error="errors.password" :name="'password'"></form-error-alert>
                 </div>
               </div>
 
               <div class="form-group row">
-                <div class="col-md-6 offset-md-4">
-                  <div class="form-check">
-                    <input :checked="old('remember')" class="form-check-input" type="checkbox" name="remember" id="remember">
+                <label for="password_confirmation" class="col-md-4 col-form-label text-md-right">
+                  Confirm Password
+                </label>
 
-                    <label class="form-check-label" for="remember">
-                      Remember Me
-                    </label>
-                  </div>
+                <div class="col-md-6">
+                  <input id="password_confirmation" type="password" :class="{'is-invalid': hasError('password_confirmation')}" class="form-control"
+                         v-model="form.password_confirmation" required autocomplete="current-password" autofocus>
+
+                  <form-error-alert :error="errors.password_confirmation"></form-error-alert>
                 </div>
               </div>
 
               <div class="form-group row mb-0">
-                <div class="col-md-8 offset-md-4">
+                <div class="col-md-6 offset-md-4">
                   <button type="submit" class="btn btn-primary">
-                    Login
+                    Register
                   </button>
 
-                  <!--@if (Route::has('password.request'))-->
-                  <a v-if="1" class="btn btn-link" :href="route('password.request')">
-                    Forgot Your Password?
-                  </a>
-                  <!--@endif-->
+                  <router-link :to="{ name: 'login' }" class="btn btn-link pull-right">
+                    Sign In
+                  </router-link>
                 </div>
               </div>
             </form>
@@ -77,12 +81,32 @@
 </template>
 
 <script>
+  import {ApiService} from "../../services/api-service";
+  import FormErrorAlert from "../common/FormErrorAlert";
+  import {StorageService} from "../../services/storage-service";
+  import {AlertService} from "../../services/alert-service";
+
   export default {
     name: 'Register',
+
+    components: {
+      'form-error-alert': FormErrorAlert
+    },
+
     data() {
       return {
-        errors: {}
+        eventBus: vmEvents,
+        form: {
+          name: '', email: '', password: '', password_confirmation: ''
+        },
+        errors: {},
+        error: null,
       }
+    },
+    mounted(){
+      this.$nextTick(() => {
+        this.eventBus.$emit('app:register');
+      });
     },
     methods: {
       old(field){
@@ -93,6 +117,25 @@
       },
       route(field){
 
+      },
+      Register(){
+        this.error = null;
+
+        ApiService.register(this.form, (error, data) => {
+          if (error) {
+            if(data.errors){
+              this.errors = data.errors;
+            }
+            else {
+              AlertService.error(data.message);
+            }
+          }
+          else {
+            let {name, email} = data;
+            StorageService.setSession('reg:info', {name, email});
+            this.$router.push('login');
+          }
+        });
       }
     }
   }

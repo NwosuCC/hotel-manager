@@ -58,17 +58,22 @@ export const ApiService = {
   /* ================================================================
    | A U T H
    * ------------------------------------------------------------*/
+  register(formData, callback){
+    let url = '/api/register';
+    ApiService.post(url, formData, callback);
+  },
+
   getDemoData(callback){
     let url = '/api/demo';
     ApiService.get(url, callback);
   },
 
-  Login(formData, callback){
+  login(formData, callback){
     let url = '/api/login';
     ApiService.post(url, formData, callback);
   },
 
-  Logout(formData, callback){
+  logout(formData, callback){
     let url = '/api/logout';
     ApiService.post(url, formData, callback);
   },

@@ -45,11 +45,11 @@
         <ul class="navbar-nav ml-auto">
 
           <!-- Guest Links -->
-          <li v-if=" ! authUser" class="nav-item">
+          <li v-if=" ! authUser && activeRoute && activeRoute !== 'login'" class="nav-item">
             <router-link :to="{ name: 'login' }" class="nav-link">Login</router-link>
           </li>
 
-          <li v-if=" ! authUser" class="nav-item">
+          <li v-if=" ! authUser && activeRoute && activeRoute !== 'register'" class="nav-item">
             <router-link :to="{ name: 'register' }" class="nav-link">Register</router-link>
           </li>
 
@@ -83,7 +83,7 @@
 
 <script>
   import { ApiService } from '../../services/api-service';
-  import {AuthService} from "../../services/auth-service";
+  import { AuthService } from "../../services/auth-service";
 
   export default {
     name: 'AppNav',
@@ -92,23 +92,23 @@
         eventBus: vmEvents,
         hotel: null,
         authUser: null,
+        activeRoute: '',
       };
     },
     mounted(){
       this.$nextTick(function(){
-        this.eventBus.$on('hotel:loaded', (hotel) => {
-          this.hotel = hotel;
-        });
-        this.eventBus.$on('user:authenticated', (user) => {
-          this.authUser = user;
-        });
+        this.eventBus.$on('app:login', () => this.activeRoute = 'login' );
+        this.eventBus.$on('app:register', () => this.activeRoute = 'register' );
+
+        this.eventBus.$on('hotel:loaded', (hotel) => this.hotel = hotel );
+        this.eventBus.$on('user:authenticated', (user) => this.authUser = user );
       })
     },
     methods: {
       logOut(){
         AuthService.endSession();
 
-        ApiService.Logout({}, (error, data) => {
+        ApiService.logout({}, (error, data) => {
           window.location.href = '';
         });
       }

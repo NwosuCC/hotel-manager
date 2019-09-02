@@ -88,4 +88,9 @@ export const StorageService = {
     return Store.remove('session', key);
   },
 
+  pullSession(key){
+    const item = StorageService.getSession(key);
+    StorageService.removeSession(key);
+    return item;
+  },
 };

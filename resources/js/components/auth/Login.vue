@@ -81,9 +81,11 @@
   import { ApiService } from '../../services/api-service';
   import { AuthService } from '../../services/auth-service';
   import {StorageService} from "../../services/storage-service";
+  import {AlertService} from "../../services/alert-service";
 
   export default {
     name: 'Login',
+
     data() {
       return {
         eventBus: vmEvents,
@@ -93,30 +95,46 @@
         admin: null
       }
     },
+
+    mounted(){
+      this.$nextTick(() => {
+        this.eventBus.$emit('app:login');
+      });
+    },
+
     beforeRouteEnter (to, from, next) {
       AuthService.endSession();
 
       // De-activate Auth User info set at various parts of the app
       vmEvents.$emit('user:authenticated', null);
 
+      // If the current user has just registered, retrieve the locally-stored data
+      let regInfo = StorageService.pullSession('reg:info') || {};
+
       // Fetch demo Admin login credentials (for test purposes only)
       ApiService.getDemoData((err, data) => {
-        next(vm => vm.setData(err, data));
+        next(vm => vm.setData(err, data, regInfo));
       });
     },
+
     methods: {
-      setData(err, data) {
+      setData(err, data, {name, email}) {
         if (err) {
           this.error = err.toString();
         }
         else {
           this.admin = data['admin'];
         }
+        // Optional
+        if(name){
+          AlertService.success(`${name}, your account has been created. Please, login to continue`);
+          this.form.email = email;
+        }
       },
       Login(){
         this.error = null;
 
-        ApiService.Login(this.form, (error, data) => {
+        ApiService.login(this.form, (error, data) => {
           if (error) {
 //            this.eventBus.$emit('flash:data', {message: data.message, type: 'danger'});
             this.error = data.message;
