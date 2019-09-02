@@ -3,8 +3,16 @@
   <div class="container">
     <div class="row justify-content-center">
       <div class="col-md-8">
+        <!-- Test Admin -->
+        <div class="row mt-3 mb-5 py-2 border border-dark border-left-0 border-right-0">
+          <div class="col-4 text-right">Test Admin</div>
+          <div class="col-8">
+            <div>Username: <span v-if="admin">{{ admin.email }}</span></div>
+            <div>Password: <span v-if="admin">{{ admin.password }}</span></div>
+          </div>
+        </div>
 
-        <div class="card my-4">
+        <div class="card mt-2 mb-4">
           <div class="card-header">Login</div>
 
           <div class="card-body">
@@ -81,15 +89,30 @@
         eventBus: vmEvents,
         authUser: null,
         form: {},
-        error: null
+        error: null,
+        admin: null
       }
     },
     beforeRouteEnter (to, from, next) {
-      AuthService.removeCookie();
+      AuthService.endSession();
+
+      // De-activate Auth User info set at various parts of the app
       vmEvents.$emit('user:authenticated', null);
-      next();
+
+      // Fetch demo Admin login credentials (for test purposes only)
+      ApiService.getDemoData((err, data) => {
+        next(vm => vm.setData(err, data));
+      });
     },
     methods: {
+      setData(err, data) {
+        if (err) {
+          this.error = err.toString();
+        }
+        else {
+          this.admin = data['admin'];
+        }
+      },
       Login(){
         this.error = null;
 
@@ -99,8 +122,7 @@
             this.error = data.message;
           }
           else {
-            AuthService.setCookie( data );
-            StorageService.setSession( AuthService.getSessionKey(), data.id );
+            AuthService.startSession( data );
             window.location.href = '/';
           }
         });

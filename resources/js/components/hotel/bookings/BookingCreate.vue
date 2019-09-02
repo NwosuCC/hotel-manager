@@ -174,8 +174,10 @@
           this.fillInOldFormValues();
         }
       },
+
       fillInOldFormValues(){
         let room = this.rooms.find(room => room.id === this.booking.room_id);
+
         if( ! this.rooms || ! this.roomTypes || ! room){
           return;
         }
@@ -191,24 +193,30 @@
           customer_email: this.booking['customer_email'],
         };
       },
+
       getDatePart(timestamp){
         return new Date( timestamp ).toISOString().split('T')[0];
       },
+
       filterRooms(id){
         this.form.room_id = '';
         this.filteredRooms = this.rooms.filter(
           room => Number(room.room_type_id) === Number(id)
         );
       },
+
       submitBookingForm(){
         (this.booking) ? this.updateBooking() : this.addBooking();
       },
+
       addBooking(){
         ApiService.addBooking(this.form, this.postResponseHandler);
       },
+
       updateBooking(){
         ApiService.updateBooking(this.form, this.booking.id, this.postResponseHandler);
       },
+
       postResponseHandler(error, data){
         if(error){
           if(data.errors){
@@ -217,13 +225,14 @@
           else {
             this.eventBus.$emit('flash:data', {message: data.message, type: 'danger'});
           }
-          console.log('this.errors: ', this.errors, ' | data: ', data);
+//          console.log('this.errors: ', this.errors, ' | data: ', data);
         }
         else {
           this.booking = data;
           this.$router.push({ name: 'booking.index'});
         }
       },
+
     }
   }
 </script>

@@ -91,7 +91,8 @@ router.beforeEach((to, from, next) => {
 
   if (requiresAuth && ! AuthService.userAuthenticated()) {
     next('/login');
-  } else {
+  }
+  else {
     next();
   }
 });

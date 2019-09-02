@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Models\Room;
 use App\Models\Booking;
+use App\User;
 use Illuminate\Support\Carbon;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\BookingRequest;
@@ -13,27 +14,33 @@ use App\Http\Resources\BookingResource;
 class BookingsController extends Controller
 {
 
-  public function index()
+  protected function bookings()
   {
     // ToDo
     // If Admin :: can view allbookings
     // If User :: can view only his bookings
 
+    /** @var User $user */
+    $user = auth()->user();
+
     $bookings = Booking::query()
       ->with('room.roomType', 'user')
-      ->latest()
-      ->get();
+      ->latest();
 
-    return response()->json( $bookings );
+    return $user->isAdmin() ? $bookings : $bookings->by($user);
+  }
+
+
+  public function index()
+  {
+    return response()->json( $this->bookings()->get() );
   }
 
 
   public function paginate()
   {
-    $bookings = Booking::query()
+    $bookings = $this->bookings()
       ->filter(request(['month', 'year']))
-      ->with('room.roomType', 'user')
-      ->latest()
       ->paginate(5);
 
     return BookingResource::collection( $bookings );
@@ -42,7 +49,9 @@ class BookingsController extends Controller
 
   public function store(BookingRequest $request)
   {
-    $this->authorize('create', Booking::class);
+//    $this->authorize('create', Booking::class);
+
+//    return response()->json($request->all());
 
     $data = $request->only(
       'room_id', 'start_date', 'end_date', 'customer_full_name', 'customer_email'
@@ -66,7 +75,9 @@ class BookingsController extends Controller
 //      'password' => bcrypt( $data['customer_email'] . microtime(true))
 //    ]);
 
-    $booking = $room->bookings()->save( Booking::query()->make( $data ) );
+    $booking = $room->bookings()->save(
+      Booking::query()->make( $data )
+    );
 
     return response()->json( $booking );
   }

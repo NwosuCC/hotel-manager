@@ -10,6 +10,20 @@ use Illuminate\Http\Request;
 class LoginController extends Controller
 {
 
+  /** For Test purposes only */
+  public function demo()
+  {
+    $admin = User::query()->admin()->first(['email'])->toArray();
+    $admin['password'] = 'password';
+
+    $data = [
+      'admin' => $admin
+    ];
+
+    return response()->json($data, 200);
+  }
+
+
   public function login()
   {
     if(auth()->attempt(request(['email', 'password']))){

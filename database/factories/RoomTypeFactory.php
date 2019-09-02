@@ -7,6 +7,8 @@ use Faker\Generator as Faker;
 
 $factory->define(RoomType::class, function (Faker $faker) {
     return [
-        'name' => $faker->firstName
+        'name' => $faker->firstName,
+//        'price' => $faker->numberBetween(80, 1150) + ($faker->numberBetween(0, 9) / 10)
+        'price' => abs(rand(80, 1150)) / 10
     ];
 });

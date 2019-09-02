@@ -8,14 +8,6 @@ const sessionKey = 'met_match';
 
 export const AuthService = {
 
-  getSessionKey(){
-    return sessionKey;
-  },
-
-  userAuthenticated(){
-    return StorageService.getSession( sessionKey );
-  },
-
   setCookie(token){
     Cookies.set( cookieKey, token, { expires: 5 } );
   },
@@ -26,6 +18,21 @@ export const AuthService = {
 
   removeCookie(){
     Cookies.remove( cookieKey );
+  },
+
+  startSession(token){
+    this.setCookie(token);
+    StorageService.setSession( sessionKey, token.id );
+  },
+
+  endSession(){
+    this.removeCookie();
+    StorageService.removeSession( sessionKey );
+  },
+
+  userAuthenticated(){
+    console.log('sessionKey: ', sessionKey, ' | session: ', StorageService.getSession( sessionKey ));
+    return StorageService.getSession( sessionKey );
   },
 
 };

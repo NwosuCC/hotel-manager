@@ -56,24 +56,32 @@ export const StorageService = {
     return typeof(Storage) !== "undefined";
   },
 
+
+  /* ================================================================
+   | L O C A L   S T O R A G E
+   * ------------------------------------------------------------*/
   setLocal(key, value){
     Store.set('local', key, value);
-  },
-
-  setSession(key, value){
-    Store.set('session', key, value);
   },
 
   getLocal(key){
     return Store.get('local', key);
   },
 
-  getSession(key){
-    return Store.get('session', key);
-  },
-
   removeLocal(key){
     return Store.remove('local', key);
+  },
+
+
+  /* ================================================================
+   | S E S S I O N   S T O R A G E
+   * ------------------------------------------------------------*/
+  setSession(key, value){
+    Store.set('session', key, value);
+  },
+
+  getSession(key){
+    return Store.get('session', key);
   },
 
   removeSession(key){

@@ -106,7 +106,7 @@
     },
     methods: {
       logOut(){
-        AuthService.removeCookie();
+        AuthService.endSession();
 
         ApiService.Logout({}, (error, data) => {
           window.location.href = '';

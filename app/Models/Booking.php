@@ -49,4 +49,9 @@ class Booking extends Model
   }
 
 
+  public function scopeBy($query, User $user)
+  {
+    return qs($query)->where('customer_email', $user->{'email'});
+  }
+
 }

@@ -1940,6 +1940,14 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 
@@ -1950,15 +1958,29 @@ __webpack_require__.r(__webpack_exports__);
       eventBus: vmEvents,
       authUser: null,
       form: {},
-      error: null
+      error: null,
+      admin: null
     };
   },
   beforeRouteEnter: function beforeRouteEnter(to, from, next) {
-    _services_auth_service__WEBPACK_IMPORTED_MODULE_1__["AuthService"].removeCookie();
-    vmEvents.$emit('user:authenticated', null);
-    next();
+    _services_auth_service__WEBPACK_IMPORTED_MODULE_1__["AuthService"].endSession(); // De-activate Auth User info set at various parts of the app
+
+    vmEvents.$emit('user:authenticated', null); // Fetch demo Admin login credentials (for test purposes only)
+
+    _services_api_service__WEBPACK_IMPORTED_MODULE_0__["ApiService"].getDemoData(function (err, data) {
+      next(function (vm) {
+        return vm.setData(err, data);
+      });
+    });
   },
   methods: {
+    setData: function setData(err, data) {
+      if (err) {
+        this.error = err.toString();
+      } else {
+        this.admin = data['admin'];
+      }
+    },
     Login: function Login() {
       var _this = this;
 
@@ -1968,8 +1990,7 @@ __webpack_require__.r(__webpack_exports__);
           //            this.eventBus.$emit('flash:data', {message: data.message, type: 'danger'});
           _this.error = data.message;
         } else {
-          _services_auth_service__WEBPACK_IMPORTED_MODULE_1__["AuthService"].setCookie(data);
-          _services_storage_service__WEBPACK_IMPORTED_MODULE_2__["StorageService"].setSession(_services_auth_service__WEBPACK_IMPORTED_MODULE_1__["AuthService"].getSessionKey(), data.id);
+          _services_auth_service__WEBPACK_IMPORTED_MODULE_1__["AuthService"].startSession(data);
           window.location.href = '/';
         }
       });
@@ -2664,9 +2685,8 @@ __webpack_require__.r(__webpack_exports__);
             message: data.message,
             type: 'danger'
           });
-        }
+        } //          console.log('this.errors: ', this.errors, ' | data: ', data);
 
-        console.log('this.errors: ', this.errors, ' | data: ', data);
       } else {
         this.booking = data;
         this.$router.push({
@@ -3879,7 +3899,7 @@ __webpack_require__.r(__webpack_exports__);
   },
   methods: {
     logOut: function logOut() {
-      _services_auth_service__WEBPACK_IMPORTED_MODULE_1__["AuthService"].removeCookie();
+      _services_auth_service__WEBPACK_IMPORTED_MODULE_1__["AuthService"].endSession();
       _services_api_service__WEBPACK_IMPORTED_MODULE_0__["ApiService"].Logout({}, function (error, data) {
         window.location.href = '';
       });
@@ -40358,7 +40378,36 @@ var render = function() {
   return _c("div", { staticClass: "container" }, [
     _c("div", { staticClass: "row justify-content-center" }, [
       _c("div", { staticClass: "col-md-8" }, [
-        _c("div", { staticClass: "card my-4" }, [
+        _c(
+          "div",
+          {
+            staticClass:
+              "row mt-3 mb-5 py-2 border border-dark border-left-0 border-right-0"
+          },
+          [
+            _c("div", { staticClass: "col-4 text-right" }, [
+              _vm._v("Test Admin")
+            ]),
+            _vm._v(" "),
+            _c("div", { staticClass: "col-8" }, [
+              _c("div", [
+                _vm._v("Username: "),
+                _vm.admin
+                  ? _c("span", [_vm._v(_vm._s(_vm.admin.email))])
+                  : _vm._e()
+              ]),
+              _vm._v(" "),
+              _c("div", [
+                _vm._v("Password: "),
+                _vm.admin
+                  ? _c("span", [_vm._v(_vm._s(_vm.admin.password))])
+                  : _vm._e()
+              ])
+            ])
+          ]
+        ),
+        _vm._v(" "),
+        _c("div", { staticClass: "card mt-2 mb-4" }, [
           _c("div", { staticClass: "card-header" }, [_vm._v("Login")]),
           _vm._v(" "),
           _c("div", { staticClass: "card-body" }, [
@@ -59399,7 +59448,14 @@ var ApiService = {
   "delete": function _delete(url, callback) {
     this.setBearer().handleRequest(axios__WEBPACK_IMPORTED_MODULE_0___default.a["delete"](url), callback);
   },
-  // ======================================================================
+
+  /* ================================================================
+   | A U T H
+   * ------------------------------------------------------------*/
+  getDemoData: function getDemoData(callback) {
+    var url = '/api/demo';
+    ApiService.get(url, callback);
+  },
   Login: function Login(formData, callback) {
     var url = '/api/login';
     ApiService.post(url, formData, callback);
@@ -59412,16 +59468,18 @@ var ApiService = {
     var url = '/api/users';
     ApiService.getPaginated(url, page, callback);
   },
-  // ==========================================================================
-  // H O T E L
-  // ==========================================================================
+
+  /* ================================================================
+   | H O T E L
+   * ------------------------------------------------------------*/
   getHotel: function getHotel(callback) {
     var url = '/api/';
     ApiService.get(url, callback);
   },
-  // ==========================================================================
-  // R O O M   T Y P E S
-  // ==========================================================================
+
+  /* ================================================================
+   | R O O M   T Y P E S
+   * ------------------------------------------------------------*/
   getRoomTypes: function getRoomTypes(page, callback) {
     var url = page ? '/api/room-types/paginated' : '/api/room-types';
     ApiService.getPaginated(url, {
@@ -59446,9 +59504,10 @@ var ApiService = {
     var url = '/api/room-types/' + id;
     ApiService["delete"](url, callback);
   },
-  // ==========================================================================
-  // R O O M S
-  // ==========================================================================
+
+  /* ================================================================
+   | R O O M S
+   * ------------------------------------------------------------*/
   getRooms: function getRooms(page, callback) {
     var url = '/api/rooms';
     ApiService.getPaginated(url, {
@@ -59481,9 +59540,10 @@ var ApiService = {
     var url = '/api/rooms/' + id;
     ApiService["delete"](url, callback);
   },
-  // ==========================================================================
-  // B O O K I N G S
-  // ==========================================================================
+
+  /* ================================================================
+   | B O O K I N G S
+   * ------------------------------------------------------------*/
   getBookings: function getBookings(page, callback) {
     var url = '/api/bookings';
     ApiService.getPaginated(url, {
@@ -59537,12 +59597,6 @@ __webpack_require__.r(__webpack_exports__);
 var cookieKey = btoa('hotel_manager');
 var sessionKey = 'met_match';
 var AuthService = {
-  getSessionKey: function getSessionKey() {
-    return sessionKey;
-  },
-  userAuthenticated: function userAuthenticated() {
-    return _storage_service__WEBPACK_IMPORTED_MODULE_1__["StorageService"].getSession(sessionKey);
-  },
   setCookie: function setCookie(token) {
     js_cookie__WEBPACK_IMPORTED_MODULE_0___default.a.set(cookieKey, token, {
       expires: 5
@@ -59553,6 +59607,18 @@ var AuthService = {
   },
   removeCookie: function removeCookie() {
     js_cookie__WEBPACK_IMPORTED_MODULE_0___default.a.remove(cookieKey);
+  },
+  startSession: function startSession(token) {
+    this.setCookie(token);
+    _storage_service__WEBPACK_IMPORTED_MODULE_1__["StorageService"].setSession(sessionKey, token.id);
+  },
+  endSession: function endSession() {
+    this.removeCookie();
+    _storage_service__WEBPACK_IMPORTED_MODULE_1__["StorageService"].removeSession(sessionKey);
+  },
+  userAuthenticated: function userAuthenticated() {
+    console.log('sessionKey: ', sessionKey, ' | session: ', _storage_service__WEBPACK_IMPORTED_MODULE_1__["StorageService"].getSession(sessionKey));
+    return _storage_service__WEBPACK_IMPORTED_MODULE_1__["StorageService"].getSession(sessionKey);
   }
 };
 
@@ -59724,20 +59790,28 @@ var StorageService = {
   isSupported: function isSupported() {
     return typeof Storage !== "undefined";
   },
+
+  /* ================================================================
+   | L O C A L   S T O R A G E
+   * ------------------------------------------------------------*/
   setLocal: function setLocal(key, value) {
     Store.set('local', key, value);
-  },
-  setSession: function setSession(key, value) {
-    Store.set('session', key, value);
   },
   getLocal: function getLocal(key) {
     return Store.get('local', key);
   },
-  getSession: function getSession(key) {
-    return Store.get('session', key);
-  },
   removeLocal: function removeLocal(key) {
     return Store.remove('local', key);
+  },
+
+  /* ================================================================
+   | S E S S I O N   S T O R A G E
+   * ------------------------------------------------------------*/
+  setSession: function setSession(key, value) {
+    Store.set('session', key, value);
+  },
+  getSession: function getSession(key) {
+    return Store.get('session', key);
   },
   removeSession: function removeSession(key) {
     return Store.remove('session', key);
