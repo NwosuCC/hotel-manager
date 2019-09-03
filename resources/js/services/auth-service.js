@@ -31,8 +31,12 @@ export const AuthService = {
   },
 
   userAuthenticated(){
-    console.log('sessionKey: ', sessionKey, ' | session: ', StorageService.getSession( sessionKey ));
     return StorageService.getSession( sessionKey );
+  },
+
+  superUser(){
+    const token = AuthService.getCookie();
+    return typeof token === 'object' && token.role === 'admin';
   },
 
 };

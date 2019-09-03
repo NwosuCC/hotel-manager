@@ -7,7 +7,7 @@
     <div class="card-body">
 
       <!-- Add Button -->
-      <div class="pb-3">
+      <div v-if="isSuperUser" class="pb-3">
         <router-link :to="{ name: 'room.create' }" class="btn-clear info rounded pull-right">
           <i class="la la-plus mr-2"></i> Room
         </router-link>
@@ -21,7 +21,7 @@
             <th class="border-top-0 w-25">#</th>
             <th class="border-top-0 w-25">Name</th>
             <th class="border-top-0 w-25">Type</th>
-            <th class="border-top-0 w-25">Actions</th>
+            <th v-if="isSuperUser" class="border-top-0 w-25">Actions</th>
           </tr>
           </thead>
           <tbody>
@@ -29,7 +29,7 @@
             <td>{{ startIndex + i }}</td>
             <td>{{ room.name }}</td>
             <td>{{ room.room_type.name }}</td>
-            <td class="text-center">
+            <td v-if="isSuperUser" class="text-center">
               <router-link :to="{ name: 'room.edit', params: {id: room.id} }" class="btn btn-sm btn-light btn-outline-info mr-1 py-0 px-1">
                 <i class="la la-pencil"></i>
               </router-link>
@@ -56,6 +56,7 @@
 <script>
   import { ApiService } from '../../../services/api-service';
   import Pagination from '../../common/Pagination.vue';
+  import {AuthService} from "../../../services/auth-service";
 
   export default {
     name: 'RoomIndex',
@@ -71,6 +72,7 @@
         error: null,
         minHeight: 0,
         startIndex: 1,
+        isSuperUser: AuthService.superUser(),
       };
     },
 

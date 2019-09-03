@@ -96,17 +96,12 @@
       }
     },
 
-    mounted(){
-      this.$nextTick(() => {
-        this.eventBus.$emit('app:login');
-      });
-    },
-
     beforeRouteEnter (to, from, next) {
       AuthService.endSession();
 
       // De-activate Auth User info set at various parts of the app
       vmEvents.$emit('user:authenticated', null);
+      console.log('Login: auth ended');
 
       // If the current user has just registered, retrieve the locally-stored data
       let regInfo = StorageService.pullSession('reg:info') || {};
@@ -125,7 +120,7 @@
         else {
           this.admin = data['admin'];
         }
-        // Optional
+        // If previous route is '/register' and registration was successful
         if(name){
           AlertService.success(`${name}, your account has been created. Please, login to continue`);
           this.form.email = email;
@@ -136,12 +131,14 @@
 
         ApiService.login(this.form, (error, data) => {
           if (error) {
-//            this.eventBus.$emit('flash:data', {message: data.message, type: 'danger'});
             this.error = data.message;
           }
           else {
             AuthService.startSession( data );
-            window.location.href = '/';
+            let nextRoute = StorageService.pullSession('route:to');
+            window.location.href = nextRoute ? nextRoute.fullPath : '/';
+            // nextRoute ? this.$router.push(nextRoute) : window.location.href = '/';
+            // this.$router.go(-1);
           }
         });
       }

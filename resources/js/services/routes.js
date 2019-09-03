@@ -7,12 +7,14 @@ Vue.use( VueRouter );
 import {AuthService} from "./auth-service";
 
 import AuthModule from '../components/auth/AuthModule.vue';
+import e403 from '../components/error/e403.vue';
 import e404 from '../components/error/e404.vue';
 
 import Hotel from '../components/hotel/Hotel.vue';
 import RoomTypeModule from '../components/hotel/room-types/RoomTypeModule.vue';
 import RoomModule from '../components/hotel/rooms/RoomModule.vue';
 import BookingModule from '../components/hotel/bookings/BookingModule.vue';
+import {StorageService} from "./storage-service";
 
 
 //ToDo: using title-case 'Router' will cause an error. Find out why?
@@ -77,6 +79,12 @@ const router = new VueRouter({
 
 
     {
+      path: '/error/:type',
+      name: 'error',
+      component: e403,
+    },
+
+    {
       path: '*',
       component: e404,
     },
@@ -89,8 +97,22 @@ router.beforeEach((to, from, next) => {
     return record.meta.requiresAuth;
   });
 
-  if (requiresAuth && ! AuthService.userAuthenticated()) {
-    next('/login');
+  const requiresSU = to.matched.some((record) => {
+    return record.meta.requiresSU;
+  });
+
+  const isLoggedIn = AuthService.userAuthenticated();
+  const isAdmin = AuthService.superUser();
+
+  const signInRoute = '/login';
+  const noAuthRoute = { name: 'error', params: {type:'unauthorised'} };
+
+  if (requiresSU && ! isAdmin) {
+    next(isLoggedIn ? noAuthRoute : signInRoute);
+  }
+  else if (requiresAuth && ! isLoggedIn) {
+    StorageService.setSession('route:to', to);
+    next(signInRoute);
   }
   else {
     next();

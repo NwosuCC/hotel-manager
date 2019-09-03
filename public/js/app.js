@@ -1799,6 +1799,10 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
 
 
 
@@ -1816,7 +1820,9 @@ __webpack_require__.r(__webpack_exports__);
       eventBus: vmEvents,
       authUser: null,
       hotel: null,
-      year: new Date().getFullYear()
+      year: new Date().getFullYear(),
+      activeRouteName: this.$router.currentRoute.name,
+      transitionName: 'slide-left'
     };
   },
   mounted: function mounted() {
@@ -1827,6 +1833,15 @@ __webpack_require__.r(__webpack_exports__);
       this.hotel = _services_storage_service__WEBPACK_IMPORTED_MODULE_4__["StorageService"].getLocal('hotel');
       this.eventBus.$emit('hotel:loaded', this.hotel);
     });
+  },
+  watch: {
+    $route: function $route(to, from) {
+      this.activeRouteName = this.$router.currentRoute.name; // Calculate page slide direction
+
+      var toDepth = to.path.split('/').length;
+      var fromDepth = from.path.split('/').length;
+      this.transitionName = toDepth < fromDepth ? 'slide-right' : 'slide-left';
+    }
   }
 });
 
@@ -1964,17 +1979,11 @@ __webpack_require__.r(__webpack_exports__);
       admin: null
     };
   },
-  mounted: function mounted() {
-    var _this = this;
-
-    this.$nextTick(function () {
-      _this.eventBus.$emit('app:login');
-    });
-  },
   beforeRouteEnter: function beforeRouteEnter(to, from, next) {
     _services_auth_service__WEBPACK_IMPORTED_MODULE_1__["AuthService"].endSession(); // De-activate Auth User info set at various parts of the app
 
-    vmEvents.$emit('user:authenticated', null); // If the current user has just registered, retrieve the locally-stored data
+    vmEvents.$emit('user:authenticated', null);
+    console.log('Login: auth ended'); // If the current user has just registered, retrieve the locally-stored data
 
     var regInfo = _services_storage_service__WEBPACK_IMPORTED_MODULE_2__["StorageService"].pullSession('reg:info') || {}; // Fetch demo Admin login credentials (for test purposes only)
 
@@ -1993,7 +2002,7 @@ __webpack_require__.r(__webpack_exports__);
         this.error = err.toString();
       } else {
         this.admin = data['admin'];
-      } // Optional
+      } // If previous route is '/register' and registration was successful
 
 
       if (name) {
@@ -2002,16 +2011,17 @@ __webpack_require__.r(__webpack_exports__);
       }
     },
     Login: function Login() {
-      var _this2 = this;
+      var _this = this;
 
       this.error = null;
       _services_api_service__WEBPACK_IMPORTED_MODULE_0__["ApiService"].login(this.form, function (error, data) {
         if (error) {
-          //            this.eventBus.$emit('flash:data', {message: data.message, type: 'danger'});
-          _this2.error = data.message;
+          _this.error = data.message;
         } else {
           _services_auth_service__WEBPACK_IMPORTED_MODULE_1__["AuthService"].startSession(data);
-          window.location.href = '/';
+          var nextRoute = _services_storage_service__WEBPACK_IMPORTED_MODULE_2__["StorageService"].pullSession('route:to');
+          window.location.href = nextRoute ? nextRoute.fullPath : '/'; // nextRoute ? this.$router.push(nextRoute) : window.location.href = '/';
+          // this.$router.go(-1);
         }
       });
     }
@@ -2137,13 +2147,6 @@ __webpack_require__.r(__webpack_exports__);
       error: null
     };
   },
-  mounted: function mounted() {
-    var _this = this;
-
-    this.$nextTick(function () {
-      _this.eventBus.$emit('app:register');
-    });
-  },
   methods: {
     old: function old(field) {},
     hasError: function hasError(field) {
@@ -2151,13 +2154,13 @@ __webpack_require__.r(__webpack_exports__);
     },
     route: function route(field) {},
     Register: function Register() {
-      var _this2 = this;
+      var _this = this;
 
       this.error = null;
       _services_api_service__WEBPACK_IMPORTED_MODULE_0__["ApiService"].register(this.form, function (error, data) {
         if (error) {
           if (data.errors) {
-            _this2.errors = data.errors;
+            _this.errors = data.errors;
           } else {
             _services_alert_service__WEBPACK_IMPORTED_MODULE_3__["AlertService"].error(data.message);
           }
@@ -2169,7 +2172,7 @@ __webpack_require__.r(__webpack_exports__);
             email: email
           });
 
-          _this2.$router.push('login');
+          _this.$router.push('login');
         }
       });
     }
@@ -2338,6 +2341,41 @@ function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) r
       });
     }
   }
+});
+
+/***/ }),
+
+/***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/error/e403.vue?vue&type=script&lang=js&":
+/*!*********************************************************************************************************************************************************************!*\
+  !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/error/e403.vue?vue&type=script&lang=js& ***!
+  \*********************************************************************************************************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+/* harmony default export */ __webpack_exports__["default"] = ({
+  name: 'e403'
 });
 
 /***/ }),
@@ -3231,6 +3269,7 @@ __webpack_require__.r(__webpack_exports__);
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _services_api_service__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../services/api-service */ "./resources/js/services/api-service.js");
 /* harmony import */ var _common_Pagination_vue__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../common/Pagination.vue */ "./resources/js/components/common/Pagination.vue");
+/* harmony import */ var _services_auth_service__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../services/auth-service */ "./resources/js/services/auth-service.js");
 //
 //
 //
@@ -3286,6 +3325,7 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
@@ -3300,7 +3340,8 @@ __webpack_require__.r(__webpack_exports__);
       pageInfo: null,
       error: null,
       minHeight: 0,
-      startIndex: 1
+      startIndex: 1,
+      isSuperUser: _services_auth_service__WEBPACK_IMPORTED_MODULE_2__["AuthService"].superUser()
     };
   },
   beforeRouteEnter: function beforeRouteEnter(to, from, next) {
@@ -3394,9 +3435,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony default export */ __webpack_exports__["default"] = ({
   path: '/room-types',
   component: _RoomType_vue__WEBPACK_IMPORTED_MODULE_0__["default"],
-  meta: {
-    requiresAuth: true
-  },
+  // meta: {
+  //   requiresAuth: true
+  // },
   children: [{
     path: '',
     name: 'room-type.index',
@@ -3404,11 +3445,17 @@ __webpack_require__.r(__webpack_exports__);
   }, {
     path: 'create',
     name: 'room-type.create',
-    component: _RoomTypeCreate_vue__WEBPACK_IMPORTED_MODULE_2__["default"]
+    component: _RoomTypeCreate_vue__WEBPACK_IMPORTED_MODULE_2__["default"],
+    meta: {
+      requiresSU: true
+    }
   }, {
     path: ':id/edit',
     name: 'room-type.edit',
-    component: _RoomTypeCreate_vue__WEBPACK_IMPORTED_MODULE_2__["default"]
+    component: _RoomTypeCreate_vue__WEBPACK_IMPORTED_MODULE_2__["default"],
+    meta: {
+      requiresSU: true
+    }
   }]
 });
 
@@ -3607,6 +3654,7 @@ __webpack_require__.r(__webpack_exports__);
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _services_api_service__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../services/api-service */ "./resources/js/services/api-service.js");
 /* harmony import */ var _common_Pagination_vue__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../common/Pagination.vue */ "./resources/js/components/common/Pagination.vue");
+/* harmony import */ var _services_auth_service__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../services/auth-service */ "./resources/js/services/auth-service.js");
 //
 //
 //
@@ -3662,6 +3710,7 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
@@ -3676,7 +3725,8 @@ __webpack_require__.r(__webpack_exports__);
       pageInfo: null,
       error: null,
       minHeight: 0,
-      startIndex: 1
+      startIndex: 1,
+      isSuperUser: _services_auth_service__WEBPACK_IMPORTED_MODULE_2__["AuthService"].superUser()
     };
   },
   beforeRouteEnter: function beforeRouteEnter(to, from, next) {
@@ -3770,9 +3820,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony default export */ __webpack_exports__["default"] = ({
   path: '/rooms',
   component: _Room_vue__WEBPACK_IMPORTED_MODULE_0__["default"],
-  meta: {
-    requiresAuth: true
-  },
+  // meta: {
+  //   requiresAuth: true
+  // },
   children: [{
     path: '',
     name: 'room.index',
@@ -3780,11 +3830,17 @@ __webpack_require__.r(__webpack_exports__);
   }, {
     path: 'create',
     name: 'room.create',
-    component: _RoomCreate_vue__WEBPACK_IMPORTED_MODULE_2__["default"]
+    component: _RoomCreate_vue__WEBPACK_IMPORTED_MODULE_2__["default"],
+    meta: {
+      requiresSU: true
+    }
   }, {
     path: ':id/edit',
     name: 'room.edit',
-    component: _RoomCreate_vue__WEBPACK_IMPORTED_MODULE_2__["default"]
+    component: _RoomCreate_vue__WEBPACK_IMPORTED_MODULE_2__["default"],
+    meta: {
+      requiresSU: true
+    }
   }]
 });
 
@@ -3967,32 +4023,22 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
-//
-//
-//
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: 'AppNav',
+  props: ['activeRouteName'],
   data: function data() {
     return {
       eventBus: vmEvents,
       hotel: null,
-      authUser: null,
-      activeRoute: ''
+      authUser: null
     };
   },
   mounted: function mounted() {
     this.$nextTick(function () {
       var _this = this;
 
-      this.eventBus.$on('app:login', function () {
-        return _this.activeRoute = 'login';
-      });
-      this.eventBus.$on('app:register', function () {
-        return _this.activeRoute = 'register';
-      });
       this.eventBus.$on('hotel:loaded', function (hotel) {
         return _this.hotel = hotel;
       });
@@ -40441,15 +40487,31 @@ var render = function() {
     [
       _c("flash-message"),
       _vm._v(" "),
-      _c("app-nav", { attrs: { authUser: _vm.authUser } }),
+      _c("app-nav", {
+        attrs: { authUser: _vm.authUser, activeRouteName: _vm.activeRouteName }
+      }),
       _vm._v(" "),
       _c(
         "main",
         {
           staticClass: "d-flex mt-5 py-4",
-          staticStyle: { "min-height": "390px" }
+          staticStyle: { "min-height": "75vh" }
         },
-        [_c("div", { staticClass: "container" }, [_c("router-view")], 1)]
+        [
+          _c(
+            "div",
+            { staticClass: "container" },
+            [
+              _c(
+                "transition",
+                { attrs: { name: _vm.transitionName } },
+                [_c("router-view")],
+                1
+              )
+            ],
+            1
+          )
+        ]
       ),
       _vm._v(" "),
       _c("app-footer")
@@ -41135,6 +41197,49 @@ var render = function() {
   ])
 }
 var staticRenderFns = []
+render._withStripped = true
+
+
+
+/***/ }),
+
+/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/error/e403.vue?vue&type=template&id=27384264&":
+/*!*************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/error/e403.vue?vue&type=template&id=27384264& ***!
+  \*************************************************************************************************************************************************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "render", function() { return render; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return staticRenderFns; });
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _vm._m(0)
+}
+var staticRenderFns = [
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c(
+      "div",
+      { staticClass: "container", staticStyle: { height: "500px" } },
+      [
+        _c("div", { staticClass: "row h-100" }, [
+          _c("div", { staticClass: "col-12 my-auto text-center" }, [
+            _c("h1", [_vm._v("403")]),
+            _vm._v(" "),
+            _c("h5", [_vm._v("Unauthorised")])
+          ])
+        ])
+      ]
+    )
+  }
+]
 render._withStripped = true
 
 
@@ -42174,24 +42279,26 @@ var render = function() {
       "div",
       { staticClass: "card-body" },
       [
-        _c(
-          "div",
-          { staticClass: "pb-3" },
-          [
-            _c(
-              "router-link",
-              {
-                staticClass: "btn-clear info rounded pull-right",
-                attrs: { to: { name: "room-type.create" } }
-              },
+        _vm.isSuperUser
+          ? _c(
+              "div",
+              { staticClass: "pb-3" },
               [
-                _c("i", { staticClass: "la la-plus mr-2" }),
-                _vm._v(" Room Type\n      ")
-              ]
+                _c(
+                  "router-link",
+                  {
+                    staticClass: "btn-clear info rounded pull-right",
+                    attrs: { to: { name: "room-type.create" } }
+                  },
+                  [
+                    _c("i", { staticClass: "la la-plus mr-2" }),
+                    _vm._v(" Room Type\n      ")
+                  ]
+                )
+              ],
+              1
             )
-          ],
-          1
-        ),
+          : _vm._e(),
         _vm._v(" "),
         _c(
           "div",
@@ -42201,7 +42308,27 @@ var render = function() {
           },
           [
             _c("table", { staticClass: "table", attrs: { id: "list-table" } }, [
-              _vm._m(0),
+              _c("thead", [
+                _c("tr", [
+                  _c("th", { staticClass: "border-top-0 w-25" }, [_vm._v("#")]),
+                  _vm._v(" "),
+                  _c("th", { staticClass: "border-top-0 w-25" }, [
+                    _vm._v("Name")
+                  ]),
+                  _vm._v(" "),
+                  _c("th", { staticClass: "border-top-0 w-25" }, [
+                    _vm._v("Price")
+                  ]),
+                  _vm._v(" "),
+                  _vm.isSuperUser
+                    ? _c(
+                        "th",
+                        { staticClass: "border-top-0 w-25 text-center" },
+                        [_vm._v("Actions")]
+                      )
+                    : _vm._e()
+                ])
+              ]),
               _vm._v(" "),
               _c(
                 "tbody",
@@ -42213,41 +42340,43 @@ var render = function() {
                     _vm._v(" "),
                     _c("td", [_vm._v(_vm._s(roomType.price))]),
                     _vm._v(" "),
-                    _c(
-                      "td",
-                      { staticClass: "text-center" },
-                      [
-                        _c(
-                          "router-link",
-                          {
-                            staticClass:
-                              "btn btn-sm btn-light btn-outline-info mr-1 py-0 px-1",
-                            attrs: {
-                              to: {
-                                name: "room-type.edit",
-                                params: { id: roomType.id }
-                              }
-                            }
-                          },
-                          [_c("i", { staticClass: "la la-pencil" })]
-                        ),
-                        _vm._v(" "),
-                        _c(
-                          "a",
-                          {
-                            staticClass:
-                              "btn btn-sm btn-light btn-outline-danger text-danger mr-1 py-0 px-1",
-                            on: {
-                              click: function($event) {
-                                return _vm.deleteItem(i, roomType.id)
-                              }
-                            }
-                          },
-                          [_c("i", { staticClass: "la la-trash" })]
+                    _vm.isSuperUser
+                      ? _c(
+                          "td",
+                          { staticClass: "text-center" },
+                          [
+                            _c(
+                              "router-link",
+                              {
+                                staticClass:
+                                  "btn btn-sm btn-light btn-outline-info mr-1 py-0 px-1",
+                                attrs: {
+                                  to: {
+                                    name: "room-type.edit",
+                                    params: { id: roomType.id }
+                                  }
+                                }
+                              },
+                              [_c("i", { staticClass: "la la-pencil" })]
+                            ),
+                            _vm._v(" "),
+                            _c(
+                              "a",
+                              {
+                                staticClass:
+                                  "btn btn-sm btn-light btn-outline-danger text-danger mr-1 py-0 px-1",
+                                on: {
+                                  click: function($event) {
+                                    return _vm.deleteItem(i, roomType.id)
+                                  }
+                                }
+                              },
+                              [_c("i", { staticClass: "la la-trash" })]
+                            )
+                          ],
+                          1
                         )
-                      ],
-                      1
-                    )
+                      : _vm._e()
                   ])
                 }),
                 0
@@ -42271,26 +42400,7 @@ var render = function() {
     )
   ])
 }
-var staticRenderFns = [
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("thead", [
-      _c("tr", [
-        _c("th", { staticClass: "border-top-0 w-25" }, [_vm._v("#")]),
-        _vm._v(" "),
-        _c("th", { staticClass: "border-top-0 w-25" }, [_vm._v("Name")]),
-        _vm._v(" "),
-        _c("th", { staticClass: "border-top-0 w-25" }, [_vm._v("Price")]),
-        _vm._v(" "),
-        _c("th", { staticClass: "border-top-0 w-25 text-center" }, [
-          _vm._v("Actions")
-        ])
-      ])
-    ])
-  }
-]
+var staticRenderFns = []
 render._withStripped = true
 
 
@@ -42497,24 +42607,26 @@ var render = function() {
       "div",
       { staticClass: "card-body" },
       [
-        _c(
-          "div",
-          { staticClass: "pb-3" },
-          [
-            _c(
-              "router-link",
-              {
-                staticClass: "btn-clear info rounded pull-right",
-                attrs: { to: { name: "room.create" } }
-              },
+        _vm.isSuperUser
+          ? _c(
+              "div",
+              { staticClass: "pb-3" },
               [
-                _c("i", { staticClass: "la la-plus mr-2" }),
-                _vm._v(" Room\n      ")
-              ]
+                _c(
+                  "router-link",
+                  {
+                    staticClass: "btn-clear info rounded pull-right",
+                    attrs: { to: { name: "room.create" } }
+                  },
+                  [
+                    _c("i", { staticClass: "la la-plus mr-2" }),
+                    _vm._v(" Room\n      ")
+                  ]
+                )
+              ],
+              1
             )
-          ],
-          1
-        ),
+          : _vm._e(),
         _vm._v(" "),
         _c(
           "div",
@@ -42524,7 +42636,25 @@ var render = function() {
           },
           [
             _c("table", { staticClass: "table", attrs: { id: "list-table" } }, [
-              _vm._m(0),
+              _c("thead", [
+                _c("tr", [
+                  _c("th", { staticClass: "border-top-0 w-25" }, [_vm._v("#")]),
+                  _vm._v(" "),
+                  _c("th", { staticClass: "border-top-0 w-25" }, [
+                    _vm._v("Name")
+                  ]),
+                  _vm._v(" "),
+                  _c("th", { staticClass: "border-top-0 w-25" }, [
+                    _vm._v("Type")
+                  ]),
+                  _vm._v(" "),
+                  _vm.isSuperUser
+                    ? _c("th", { staticClass: "border-top-0 w-25" }, [
+                        _vm._v("Actions")
+                      ])
+                    : _vm._e()
+                ])
+              ]),
               _vm._v(" "),
               _c(
                 "tbody",
@@ -42536,38 +42666,43 @@ var render = function() {
                     _vm._v(" "),
                     _c("td", [_vm._v(_vm._s(room.room_type.name))]),
                     _vm._v(" "),
-                    _c(
-                      "td",
-                      { staticClass: "text-center" },
-                      [
-                        _c(
-                          "router-link",
-                          {
-                            staticClass:
-                              "btn btn-sm btn-light btn-outline-info mr-1 py-0 px-1",
-                            attrs: {
-                              to: { name: "room.edit", params: { id: room.id } }
-                            }
-                          },
-                          [_c("i", { staticClass: "la la-pencil" })]
-                        ),
-                        _vm._v(" "),
-                        _c(
-                          "a",
-                          {
-                            staticClass:
-                              "btn btn-sm btn-light btn-outline-danger text-danger mr-1 py-0 px-1",
-                            on: {
-                              click: function($event) {
-                                return _vm.deleteItem(i, room.id)
-                              }
-                            }
-                          },
-                          [_c("i", { staticClass: "la la-trash" })]
+                    _vm.isSuperUser
+                      ? _c(
+                          "td",
+                          { staticClass: "text-center" },
+                          [
+                            _c(
+                              "router-link",
+                              {
+                                staticClass:
+                                  "btn btn-sm btn-light btn-outline-info mr-1 py-0 px-1",
+                                attrs: {
+                                  to: {
+                                    name: "room.edit",
+                                    params: { id: room.id }
+                                  }
+                                }
+                              },
+                              [_c("i", { staticClass: "la la-pencil" })]
+                            ),
+                            _vm._v(" "),
+                            _c(
+                              "a",
+                              {
+                                staticClass:
+                                  "btn btn-sm btn-light btn-outline-danger text-danger mr-1 py-0 px-1",
+                                on: {
+                                  click: function($event) {
+                                    return _vm.deleteItem(i, room.id)
+                                  }
+                                }
+                              },
+                              [_c("i", { staticClass: "la la-trash" })]
+                            )
+                          ],
+                          1
                         )
-                      ],
-                      1
-                    )
+                      : _vm._e()
                   ])
                 }),
                 0
@@ -42591,24 +42726,7 @@ var render = function() {
     )
   ])
 }
-var staticRenderFns = [
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("thead", [
-      _c("tr", [
-        _c("th", { staticClass: "border-top-0 w-25" }, [_vm._v("#")]),
-        _vm._v(" "),
-        _c("th", { staticClass: "border-top-0 w-25" }, [_vm._v("Name")]),
-        _vm._v(" "),
-        _c("th", { staticClass: "border-top-0 w-25" }, [_vm._v("Type")]),
-        _vm._v(" "),
-        _c("th", { staticClass: "border-top-0 w-25" }, [_vm._v("Actions")])
-      ])
-    ])
-  }
-]
+var staticRenderFns = []
 render._withStripped = true
 
 
@@ -42771,53 +42889,51 @@ var render = function() {
               attrs: { id: "navbarSupportedContent" }
             },
             [
-              _vm.authUser
-                ? _c("ul", { staticClass: "navbar-nav mr-auto d-sm-flex" }, [
-                    _c("li", { staticClass: "nav-item dropdown" }, [
-                      _vm._m(1),
+              _c("ul", { staticClass: "navbar-nav mr-auto d-sm-flex" }, [
+                _c("li", { staticClass: "nav-item dropdown" }, [
+                  _vm._m(1),
+                  _vm._v(" "),
+                  _c(
+                    "div",
+                    {
+                      staticClass: "dropdown-menu dropdown-menu-right",
+                      attrs: { "aria-labelledby": "navbarDropdown" }
+                    },
+                    [
+                      _c(
+                        "router-link",
+                        {
+                          staticClass: "dropdown-item",
+                          attrs: { to: { name: "room-type.index" } }
+                        },
+                        [_vm._v("Room Types")]
+                      ),
                       _vm._v(" "),
                       _c(
-                        "div",
+                        "router-link",
                         {
-                          staticClass: "dropdown-menu dropdown-menu-right",
-                          attrs: { "aria-labelledby": "navbarDropdown" }
+                          staticClass: "dropdown-item",
+                          attrs: { to: { name: "room.index" } }
                         },
-                        [
-                          _c(
-                            "router-link",
-                            {
-                              staticClass: "dropdown-item",
-                              attrs: { to: { name: "room-type.index" } }
-                            },
-                            [_vm._v("Room Types")]
-                          ),
-                          _vm._v(" "),
-                          _c(
-                            "router-link",
-                            {
-                              staticClass: "dropdown-item",
-                              attrs: { to: { name: "room.index" } }
-                            },
-                            [_vm._v("Rooms")]
-                          ),
-                          _vm._v(" "),
-                          _c(
-                            "router-link",
-                            {
-                              staticClass: "dropdown-item",
-                              attrs: { to: { name: "booking.index" } }
-                            },
-                            [_vm._v("Bookings")]
-                          )
-                        ],
-                        1
+                        [_vm._v("Rooms")]
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "router-link",
+                        {
+                          staticClass: "dropdown-item",
+                          attrs: { to: { name: "booking.index" } }
+                        },
+                        [_vm._v("Bookings")]
                       )
-                    ])
-                  ])
-                : _vm._e(),
+                    ],
+                    1
+                  )
+                ])
+              ]),
               _vm._v(" "),
               _c("ul", { staticClass: "navbar-nav ml-auto" }, [
-                !_vm.authUser && _vm.activeRoute && _vm.activeRoute !== "login"
+                !_vm.authUser && _vm.activeRouteName !== "login"
                   ? _c(
                       "li",
                       { staticClass: "nav-item" },
@@ -42835,9 +42951,7 @@ var render = function() {
                     )
                   : _vm._e(),
                 _vm._v(" "),
-                !_vm.authUser &&
-                _vm.activeRoute &&
-                _vm.activeRoute !== "register"
+                !_vm.authUser && _vm.activeRouteName !== "register"
                   ? _c(
                       "li",
                       { staticClass: "nav-item" },
@@ -42853,16 +42967,6 @@ var render = function() {
                       ],
                       1
                     )
-                  : _vm._e(),
-                _vm._v(" "),
-                _vm.authUser
-                  ? _c("li", { staticClass: "nav-item" }, [
-                      _vm._v(
-                        "\n          " +
-                          _vm._s(_vm.authUser.email) +
-                          "\n        "
-                      )
-                    ])
                   : _vm._e(),
                 _vm._v(" "),
                 _vm.authUser
@@ -58064,6 +58168,7 @@ var map = {
 	"./auth/Register.vue": "./resources/js/components/auth/Register.vue",
 	"./common/FormErrorAlert.vue": "./resources/js/components/common/FormErrorAlert.vue",
 	"./common/Pagination.vue": "./resources/js/components/common/Pagination.vue",
+	"./error/e403.vue": "./resources/js/components/error/e403.vue",
 	"./error/e404.vue": "./resources/js/components/error/e404.vue",
 	"./hotel/Hotel.vue": "./resources/js/components/hotel/Hotel.vue",
 	"./hotel/bookings/Booking.vue": "./resources/js/components/hotel/bookings/Booking.vue",
@@ -58496,6 +58601,75 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_Pagination_vue_vue_type_template_id_3b0b08a3___WEBPACK_IMPORTED_MODULE_0__["render"]; });
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_Pagination_vue_vue_type_template_id_3b0b08a3___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
+
+
+
+/***/ }),
+
+/***/ "./resources/js/components/error/e403.vue":
+/*!************************************************!*\
+  !*** ./resources/js/components/error/e403.vue ***!
+  \************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _e403_vue_vue_type_template_id_27384264___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./e403.vue?vue&type=template&id=27384264& */ "./resources/js/components/error/e403.vue?vue&type=template&id=27384264&");
+/* harmony import */ var _e403_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./e403.vue?vue&type=script&lang=js& */ "./resources/js/components/error/e403.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+
+
+
+
+
+/* normalize component */
+
+var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__["default"])(
+  _e403_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
+  _e403_vue_vue_type_template_id_27384264___WEBPACK_IMPORTED_MODULE_0__["render"],
+  _e403_vue_vue_type_template_id_27384264___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
+  false,
+  null,
+  null,
+  null
+  
+)
+
+/* hot reload */
+if (false) { var api; }
+component.options.__file = "resources/js/components/error/e403.vue"
+/* harmony default export */ __webpack_exports__["default"] = (component.exports);
+
+/***/ }),
+
+/***/ "./resources/js/components/error/e403.vue?vue&type=script&lang=js&":
+/*!*************************************************************************!*\
+  !*** ./resources/js/components/error/e403.vue?vue&type=script&lang=js& ***!
+  \*************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_e403_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../node_modules/babel-loader/lib??ref--4-0!../../../../node_modules/vue-loader/lib??vue-loader-options!./e403.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/error/e403.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_e403_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]); 
+
+/***/ }),
+
+/***/ "./resources/js/components/error/e403.vue?vue&type=template&id=27384264&":
+/*!*******************************************************************************!*\
+  !*** ./resources/js/components/error/e403.vue?vue&type=template&id=27384264& ***!
+  \*******************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_e403_vue_vue_type_template_id_27384264___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../../../node_modules/vue-loader/lib??vue-loader-options!./e403.vue?vue&type=template&id=27384264& */ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/error/e403.vue?vue&type=template&id=27384264&");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_e403_vue_vue_type_template_id_27384264___WEBPACK_IMPORTED_MODULE_0__["render"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_e403_vue_vue_type_template_id_27384264___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
 
 
 
@@ -59998,6 +60172,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var js_cookie__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! js-cookie */ "./node_modules/js-cookie/src/js.cookie.js");
 /* harmony import */ var js_cookie__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(js_cookie__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _storage_service__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./storage-service */ "./resources/js/services/storage-service.js");
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
 
  // ToDo: use .env to import these variables
 
@@ -60024,8 +60200,11 @@ var AuthService = {
     _storage_service__WEBPACK_IMPORTED_MODULE_1__["StorageService"].removeSession(sessionKey);
   },
   userAuthenticated: function userAuthenticated() {
-    console.log('sessionKey: ', sessionKey, ' | session: ', _storage_service__WEBPACK_IMPORTED_MODULE_1__["StorageService"].getSession(sessionKey));
     return _storage_service__WEBPACK_IMPORTED_MODULE_1__["StorageService"].getSession(sessionKey);
+  },
+  superUser: function superUser() {
+    var token = AuthService.getCookie();
+    return _typeof(token) === 'object' && token.role === 'admin';
   }
 };
 
@@ -60046,11 +60225,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var vue_router__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! vue-router */ "./node_modules/vue-router/dist/vue-router.esm.js");
 /* harmony import */ var _auth_service__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./auth-service */ "./resources/js/services/auth-service.js");
 /* harmony import */ var _components_auth_AuthModule_vue__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../components/auth/AuthModule.vue */ "./resources/js/components/auth/AuthModule.vue");
-/* harmony import */ var _components_error_e404_vue__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../components/error/e404.vue */ "./resources/js/components/error/e404.vue");
-/* harmony import */ var _components_hotel_Hotel_vue__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../components/hotel/Hotel.vue */ "./resources/js/components/hotel/Hotel.vue");
-/* harmony import */ var _components_hotel_room_types_RoomTypeModule_vue__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../components/hotel/room-types/RoomTypeModule.vue */ "./resources/js/components/hotel/room-types/RoomTypeModule.vue");
-/* harmony import */ var _components_hotel_rooms_RoomModule_vue__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../components/hotel/rooms/RoomModule.vue */ "./resources/js/components/hotel/rooms/RoomModule.vue");
-/* harmony import */ var _components_hotel_bookings_BookingModule_vue__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../components/hotel/bookings/BookingModule.vue */ "./resources/js/components/hotel/bookings/BookingModule.vue");
+/* harmony import */ var _components_error_e403_vue__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../components/error/e403.vue */ "./resources/js/components/error/e403.vue");
+/* harmony import */ var _components_error_e404_vue__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../components/error/e404.vue */ "./resources/js/components/error/e404.vue");
+/* harmony import */ var _components_hotel_Hotel_vue__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../components/hotel/Hotel.vue */ "./resources/js/components/hotel/Hotel.vue");
+/* harmony import */ var _components_hotel_room_types_RoomTypeModule_vue__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../components/hotel/room-types/RoomTypeModule.vue */ "./resources/js/components/hotel/room-types/RoomTypeModule.vue");
+/* harmony import */ var _components_hotel_rooms_RoomModule_vue__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../components/hotel/rooms/RoomModule.vue */ "./resources/js/components/hotel/rooms/RoomModule.vue");
+/* harmony import */ var _components_hotel_bookings_BookingModule_vue__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../components/hotel/bookings/BookingModule.vue */ "./resources/js/components/hotel/bookings/BookingModule.vue");
+/* harmony import */ var _storage_service__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./storage-service */ "./resources/js/services/storage-service.js");
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
 
 function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
@@ -60068,6 +60249,8 @@ vue__WEBPACK_IMPORTED_MODULE_0___default.a.use(vue_router__WEBPACK_IMPORTED_MODU
 
 
 
+
+
  //ToDo: using title-case 'Router' will cause an error. Find out why?
 
 var router = new vue_router__WEBPACK_IMPORTED_MODULE_1__["default"]({
@@ -60075,7 +60258,7 @@ var router = new vue_router__WEBPACK_IMPORTED_MODULE_1__["default"]({
   routes: [{
     path: '/',
     name: 'home',
-    component: _components_hotel_Hotel_vue__WEBPACK_IMPORTED_MODULE_5__["default"],
+    component: _components_hotel_Hotel_vue__WEBPACK_IMPORTED_MODULE_6__["default"],
     props: true // pass route params to target component
 
   }].concat(_toConsumableArray(_components_auth_AuthModule_vue__WEBPACK_IMPORTED_MODULE_3__["default"]), [// {
@@ -60089,7 +60272,7 @@ var router = new vue_router__WEBPACK_IMPORTED_MODULE_1__["default"]({
   //   component: Register,
   // },
   // Object containing the root RoomType and its sub-components :: {RoomTypeIndex, RoomTypeCreate, etc}
-  _components_hotel_room_types_RoomTypeModule_vue__WEBPACK_IMPORTED_MODULE_6__["default"], // {
+  _components_hotel_room_types_RoomTypeModule_vue__WEBPACK_IMPORTED_MODULE_7__["default"], // {
   //   path: '/room-types',
   //   component: RoomType,
   //   children: [
@@ -60106,20 +60289,24 @@ var router = new vue_router__WEBPACK_IMPORTED_MODULE_1__["default"]({
   //   ]
   // }
   // Object containing the root Room and its sub-components :: {RoomIndex, RoomCreate, etc}
-  _components_hotel_rooms_RoomModule_vue__WEBPACK_IMPORTED_MODULE_7__["default"], // {
+  _components_hotel_rooms_RoomModule_vue__WEBPACK_IMPORTED_MODULE_8__["default"], // {
   //   path: '/rooms',
   //   name: 'room.index',
   //   component: RoomIndex,
   // },
   // Object containing the root Booking and its sub-components :: {BookingIndex, BookingCreate, etc}
-  _components_hotel_bookings_BookingModule_vue__WEBPACK_IMPORTED_MODULE_8__["default"], // {
+  _components_hotel_bookings_BookingModule_vue__WEBPACK_IMPORTED_MODULE_9__["default"], // {
   //   path: '/bookings',
   //   name: 'booking.index',
   //   component: BookingIndex,
   // },
   {
+    path: '/error/:type',
+    name: 'error',
+    component: _components_error_e403_vue__WEBPACK_IMPORTED_MODULE_4__["default"]
+  }, {
     path: '*',
-    component: _components_error_e404_vue__WEBPACK_IMPORTED_MODULE_4__["default"]
+    component: _components_error_e404_vue__WEBPACK_IMPORTED_MODULE_5__["default"]
   }])
 }); // Overall Auth Guard
 
@@ -60127,9 +60314,24 @@ router.beforeEach(function (to, from, next) {
   var requiresAuth = to.matched.some(function (record) {
     return record.meta.requiresAuth;
   });
+  var requiresSU = to.matched.some(function (record) {
+    return record.meta.requiresSU;
+  });
+  var isLoggedIn = _auth_service__WEBPACK_IMPORTED_MODULE_2__["AuthService"].userAuthenticated();
+  var isAdmin = _auth_service__WEBPACK_IMPORTED_MODULE_2__["AuthService"].superUser();
+  var signInRoute = '/login';
+  var noAuthRoute = {
+    name: 'error',
+    params: {
+      type: 'unauthorised'
+    }
+  };
 
-  if (requiresAuth && !_auth_service__WEBPACK_IMPORTED_MODULE_2__["AuthService"].userAuthenticated()) {
-    next('/login');
+  if (requiresSU && !isAdmin) {
+    next(isLoggedIn ? noAuthRoute : signInRoute);
+  } else if (requiresAuth && !isLoggedIn) {
+    _storage_service__WEBPACK_IMPORTED_MODULE_10__["StorageService"].setSession('route:to', to);
+    next(signInRoute);
   } else {
     next();
   }

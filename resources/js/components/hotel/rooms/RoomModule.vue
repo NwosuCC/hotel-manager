@@ -6,9 +6,9 @@
   export default {
     path: '/rooms',
     component: Room,
-    meta: {
-      requiresAuth: true
-    },
+    // meta: {
+    //   requiresAuth: true
+    // },
     children: [
       {
         path: '',
@@ -19,11 +19,17 @@
         path: 'create',
         name: 'room.create',
         component: RoomCreate,
+        meta: {
+          requiresSU: true
+        },
       },
       {
         path: ':id/edit',
         name: 'room.edit',
         component: RoomCreate,
+        meta: {
+          requiresSU: true
+        },
       },
     ]
   }

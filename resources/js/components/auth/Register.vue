@@ -103,11 +103,7 @@
         error: null,
       }
     },
-    mounted(){
-      this.$nextTick(() => {
-        this.eventBus.$emit('app:register');
-      });
-    },
+
     methods: {
       old(field){
 

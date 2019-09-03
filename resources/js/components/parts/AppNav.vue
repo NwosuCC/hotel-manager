@@ -23,7 +23,7 @@
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
 
         <!-- Left Side Of Navbar :: Menu Links -->
-        <ul v-if="authUser" class="navbar-nav mr-auto d-sm-flex">
+        <ul class="navbar-nav mr-auto d-sm-flex">
 
           <li class="nav-item dropdown">
 
@@ -45,16 +45,12 @@
         <ul class="navbar-nav ml-auto">
 
           <!-- Guest Links -->
-          <li v-if=" ! authUser && activeRoute && activeRoute !== 'login'" class="nav-item">
+          <li v-if=" ! authUser && activeRouteName !== 'login'" class="nav-item">
             <router-link :to="{ name: 'login' }" class="nav-link">Login</router-link>
           </li>
 
-          <li v-if=" ! authUser && activeRoute && activeRoute !== 'register'" class="nav-item">
+          <li v-if=" ! authUser && activeRouteName !== 'register'" class="nav-item">
             <router-link :to="{ name: 'register' }" class="nav-link">Register</router-link>
-          </li>
-
-          <li v-if="authUser" class="nav-item">
-            {{ authUser.email }}
           </li>
 
           <!-- Auth User Links -->
@@ -87,23 +83,24 @@
 
   export default {
     name: 'AppNav',
+
+    props:['activeRouteName'],
+
     data() {
       return {
         eventBus: vmEvents,
         hotel: null,
         authUser: null,
-        activeRoute: '',
       };
     },
+
     mounted(){
       this.$nextTick(function(){
-        this.eventBus.$on('app:login', () => this.activeRoute = 'login' );
-        this.eventBus.$on('app:register', () => this.activeRoute = 'register' );
-
         this.eventBus.$on('hotel:loaded', (hotel) => this.hotel = hotel );
         this.eventBus.$on('user:authenticated', (user) => this.authUser = user );
-      })
+      });
     },
+
     methods: {
       logOut(){
         AuthService.endSession();
