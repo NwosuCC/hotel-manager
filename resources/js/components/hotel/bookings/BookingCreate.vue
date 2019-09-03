@@ -195,7 +195,10 @@
       },
 
       getDatePart(timestamp){
-        return new Date( timestamp ).toISOString().split('T')[0];
+        // return (new Date( timestamp )).toISOString().split('T')[0];
+        let timestampDate = new Date( timestamp );
+        let ISODate = new Date(timestampDate.getTime() - (timestampDate.getTimezoneOffset() * 60000)).toISOString();
+        return ISODate.split('T')[0];
       },
 
       filterRooms(id){

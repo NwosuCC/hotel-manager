@@ -2794,7 +2794,10 @@ __webpack_require__.r(__webpack_exports__);
       };
     },
     getDatePart: function getDatePart(timestamp) {
-      return new Date(timestamp).toISOString().split('T')[0];
+      // return (new Date( timestamp )).toISOString().split('T')[0];
+      var timestampDate = new Date(timestamp);
+      var ISODate = new Date(timestampDate.getTime() - timestampDate.getTimezoneOffset() * 60000).toISOString();
+      return ISODate.split('T')[0];
     },
     filterRooms: function filterRooms(id) {
       this.form.room_id = '';
