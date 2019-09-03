@@ -30,7 +30,7 @@ class BookingRequest extends FormRequest
         'required', Rule::exists('rooms', 'id')
       ],
       'start_date' => [
-        'required', 'after_or_equal:now'
+        'required', 'after_or_equal:today'
       ],
       'end_date' => [
         'after:start_date'
@@ -44,7 +44,7 @@ class BookingRequest extends FormRequest
     ];
   }
 
-  
+
   /**
    * Called before the actual validation
    * Ensures the provided requirements.required_formats are supported

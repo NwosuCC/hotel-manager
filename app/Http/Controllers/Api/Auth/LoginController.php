@@ -33,6 +33,8 @@ class LoginController extends Controller
 
       $user->{'token'} = $user->createToken( User::tokenName() )->accessToken;
 
+      $user->attachGuestBookings();
+
       return response()->json($user, 200);
     }
 

@@ -91,7 +91,12 @@ class BookingsController extends Controller
 
   public function update(BookingRequest $request, Booking $booking)
   {
-//    $this->authorize('update', $booking);
+    try {
+      $this->authorize('update', $booking);
+    }
+    catch (\Exception $e){
+      return noAuthError();
+    }
 
     $data = $request->only(
       'room_id', 'start_date', 'end_date', 'customer_full_name', 'customer_email'
@@ -115,11 +120,11 @@ class BookingsController extends Controller
 
   public function destroy(Booking $booking)
   {
-//    $this->authorize('delete', $booking);
+    $this->authorize('delete', $booking);
 
     $booking->delete();
 
     return response()->json(['message' => 'Booking has been deleted']);
   }
-  
+
 }

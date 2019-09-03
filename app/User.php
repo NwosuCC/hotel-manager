@@ -71,4 +71,12 @@ class User extends Authenticatable implements MustVerifyEmail
     return $this->hasMany( Booking::class);
   }
 
+
+  public function attachGuestBookings()
+  {
+    return Booking::query()->by($this)->get()->each(function(Booking $booking){
+      $booking->user()->associate($this)->save();
+    });
+  }
+
 }

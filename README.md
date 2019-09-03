@@ -6,6 +6,10 @@ It consists of two major parts:
 - An Admin backend for managing the hotel
 - A RESTful API for prospective clients
 
+### Stack
+- Laravel
+- VueJS
+
 ### Setup and Configuration
 -  Make configurations in the .env file as with any Laravel application.
     - Copy the '.env.example' file to '.env' and edit the '.env' file

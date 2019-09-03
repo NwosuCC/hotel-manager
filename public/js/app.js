@@ -2595,6 +2595,7 @@ __webpack_require__.r(__webpack_exports__);
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _services_api_service__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../services/api-service */ "./resources/js/services/api-service.js");
+/* harmony import */ var _services_alert_service__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../../services/alert-service */ "./resources/js/services/alert-service.js");
 //
 //
 //
@@ -2700,6 +2701,7 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: 'BookingCreate',
@@ -2819,13 +2821,10 @@ __webpack_require__.r(__webpack_exports__);
         if (data.errors) {
           this.errors = data.errors;
         } else {
-          this.eventBus.$emit('flash:data', {
-            message: data.message,
-            type: 'danger'
-          });
-        } //          console.log('this.errors: ', this.errors, ' | data: ', data);
-
+          _services_alert_service__WEBPACK_IMPORTED_MODULE_1__["AlertService"].error(data.message);
+        }
       } else {
+        _services_alert_service__WEBPACK_IMPORTED_MODULE_1__["AlertService"].success("Booking updated");
         this.booking = data;
         this.$router.push({
           name: 'booking.index'

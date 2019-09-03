@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Controller;
+
 if (! function_exists('alertSupport')) {
   /**
    * Flashes unexpected error alert and (toDo: informs Support immediately - bugsnag)
@@ -17,6 +19,18 @@ if (! function_exists('alertSupport')) {
     }
 
     return $error;
+  }
+}
+
+if (! function_exists('noAuthError')) {
+  /**
+   * Returns an 'unauthorised' error
+   */
+  function noAuthError()
+  {
+    return response()->json([
+      'message' => "You are not authorised to update this entry"
+    ], 403);
   }
 }
 

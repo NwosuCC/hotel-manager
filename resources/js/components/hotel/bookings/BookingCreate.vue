@@ -105,6 +105,7 @@
 
 <script>
   import { ApiService } from '../../../services/api-service';
+  import {AlertService} from "../../../services/alert-service";
 
   export default {
     name: 'BookingCreate',
@@ -226,11 +227,11 @@
             this.errors = data.errors;
           }
           else {
-            this.eventBus.$emit('flash:data', {message: data.message, type: 'danger'});
+            AlertService.error(data.message);
           }
-//          console.log('this.errors: ', this.errors, ' | data: ', data);
         }
         else {
+          AlertService.success("Booking updated");
           this.booking = data;
           this.$router.push({ name: 'booking.index'});
         }
