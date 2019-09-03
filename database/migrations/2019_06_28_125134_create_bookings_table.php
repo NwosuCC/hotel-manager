@@ -17,8 +17,8 @@ class CreateBookingsTable extends Migration
       $table->bigIncrements('id');
       $table->unsignedBigInteger('room_id');
       $table->unsignedBigInteger('user_id')->nullable();
-      $table->timestamp('start_date');
-      $table->timestamp('end_date');
+      $table->timestamp('start_date')->nullable();
+      $table->timestamp('end_date')->nullable();
       $table->string('customer_full_name');
       $table->string('customer_email');
       $table->decimal('current_price');
