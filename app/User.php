@@ -72,9 +72,13 @@ class User extends Authenticatable implements MustVerifyEmail
   }
 
 
+  // This auth user may have made some bookings as a Guest (this is allowed)
+  // On login, retrieve and associate such bookings with this user
   public function attachGuestBookings()
   {
-    return Booking::query()->by($this)->get()->each(function(Booking $booking){
+    $userBookingsAsGuest = Booking::query()->by($this)->get();
+
+    return $userBookingsAsGuest->each(function(Booking $booking){
       $booking->user()->associate($this)->save();
     });
   }

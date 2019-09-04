@@ -7,10 +7,17 @@
 require('./bootstrap');
 
 window.Vue = require('vue');
-window.vmEvents = new Vue();
+
 
 import { router } from './services/routes';
 import App from './components/App.vue';
+
+
+/**
+ * Register global Event Bus
+ */
+window.vmEvents = new Vue();
+
 
 /**
  * The following block of code may be used to automatically register your
@@ -19,7 +26,6 @@ import App from './components/App.vue';
  *
  * Eg. ./components/ExampleComponent.vue -> <example-component></example-component>
  */
-
 const files = require.context('./components', true, /\.vue$/i);
 files.keys().map(key => Vue.component(key.split('/').pop().split('.')[0], files(key).default));
 

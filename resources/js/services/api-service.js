@@ -7,20 +7,40 @@ export const ApiService = {
 
   setBearer(){
     if( ! AuthService.tokenSet){
-      let cookie = AuthService.getCookie();
-      axios.defaults.headers.common['Authorization'] = 'Bearer ' + (cookie ? cookie.token : '');
+      let user = AuthService.getUser();
+      axios.defaults.headers.common['Authorization'] = 'Bearer ' + (user ? user.token : '');
       AuthService.tokenSet = true;
     }
     return this;
   },
 
+  // errorHandler(callback){
+  //   axios.interceptors.response.use(
+  //     function (response) {
+  //       // console.log('errorHandler response: ', response);
+  //       return response;
+  //     },
+  //     function (error) {
+  //       // console.log('errorHandler error: ', error);
+  //       if(error.response){
+  //         alert(error.response.data.message);
+  //         callback(error, (error.response ? error.response.data : null));
+  //       }
+  //     }
+  //   );
+  // },
+
   handleRequest(request, callback){
+    // this.errorHandler(callback);
+
     request
       .then(response => {
+        // console.log('handleRequest response: ', response);
         callback( null, response.data );
       })
       .catch(error => {
-        callback( error, error.response.data );
+        // console.log('handleRequest error: ', error);
+        callback(error, (error.response ? error.response.data : null));
       });
   },
 

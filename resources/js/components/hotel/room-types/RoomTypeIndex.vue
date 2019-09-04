@@ -72,7 +72,7 @@
         error: null,
         minHeight: 0,
         startIndex: 1,
-        isSuperUser: AuthService.superUser(),
+        isSuperUser: AuthService.isSuperUser(),
       };
     },
 

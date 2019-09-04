@@ -28,13 +28,15 @@ class BookingPolicy
 
   public function update(User $user, Booking $booking)
   {
-    dd($user->{'id'} === $booking->{'user'}->id, $user->toArray(), $booking->toArray());
-    return $user->{'id'} === $booking->{'user'}->id;
+    return ($booking->{'user'} && $user->{'id'} === $booking->{'user'}->id);
   }
 
   public function delete(User $user, Booking $booking)
   {
-    return $user->isAdmin() || ($user->{'id'} === $booking->{'user'}->id);
+    return
+      $user->isAdmin()
+      ||
+      ($booking->{'user'} && $user->{'id'} === $booking->{'user'}->id);
   }
 
   public function restore(User $user, Booking $booking)

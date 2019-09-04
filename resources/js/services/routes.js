@@ -102,7 +102,7 @@ router.beforeEach((to, from, next) => {
   });
 
   const isLoggedIn = AuthService.userAuthenticated();
-  const isAdmin = AuthService.superUser();
+  const isAdmin = AuthService.isSuperUser();
 
   const signInRoute = '/login';
   const noAuthRoute = { name: 'error', params: {type:'unauthorised'} };

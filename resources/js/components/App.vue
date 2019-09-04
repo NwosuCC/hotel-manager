@@ -63,7 +63,7 @@
     mounted(){
       this.$nextTick(function () {
         // Retrieve and dispatch default data :: { hotel, authUser }, if exists on localStorage
-        this.authUser = AuthService.getCookie();
+        this.authUser = AuthService.getUser();
         this.eventBus.$emit('user:authenticated', this.authUser);
 
         this.hotel = StorageService.getLocal('hotel');

@@ -34,9 +34,13 @@ export const AuthService = {
     return StorageService.getSession( sessionKey );
   },
 
-  superUser(){
-    const token = AuthService.getCookie();
-    return typeof token === 'object' && token.role === 'admin';
+  getUser(){
+    return AuthService.getCookie();
+  },
+
+  isSuperUser(){
+    const user = AuthService.getUser();
+    return typeof user === 'object' && user.role === 'admin';
   },
 
 };

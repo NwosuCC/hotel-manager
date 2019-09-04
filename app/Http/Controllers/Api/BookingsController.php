@@ -49,9 +49,7 @@ class BookingsController extends Controller
 
   public function store(BookingRequest $request)
   {
-//    $this->authorize('create', Booking::class);
-
-//    return response()->json($request->all());
+    $this->authorize('create', Booking::class);
 
     $data = $request->only(
       'room_id', 'start_date', 'end_date', 'customer_full_name', 'customer_email'
@@ -67,17 +65,14 @@ class BookingsController extends Controller
     $data['current_price'] = $room->{'roomType'}->price;
     $data['total_price'] = $data['current_price'] * $data['total_nights'];
 
-    // ToDo: Create user and save the booking against the new User account. Makes future editing possible
-//    /** @var User $user */
-//    $user = User::query()->create([
-//      'email' => $data['customer_email'],
-//      'name' => $data['customer_full_name'],
-//      'password' => bcrypt( $data['customer_email'] . microtime(true))
-//    ]);
-
+    /**n @var Booking $booking */
     $booking = $room->bookings()->save(
       Booking::query()->make( $data )
     );
+
+    if($user = auth()->user()){
+      $booking->user()->associate($user)->save();
+    }
 
     return response()->json( $booking );
   }

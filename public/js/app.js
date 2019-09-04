@@ -1828,7 +1828,7 @@ __webpack_require__.r(__webpack_exports__);
   mounted: function mounted() {
     this.$nextTick(function () {
       // Retrieve and dispatch default data :: { hotel, authUser }, if exists on localStorage
-      this.authUser = _services_auth_service__WEBPACK_IMPORTED_MODULE_3__["AuthService"].getCookie();
+      this.authUser = _services_auth_service__WEBPACK_IMPORTED_MODULE_3__["AuthService"].getUser();
       this.eventBus.$emit('user:authenticated', this.authUser);
       this.hotel = _services_storage_service__WEBPACK_IMPORTED_MODULE_4__["StorageService"].getLocal('hotel');
       this.eventBus.$emit('hotel:loaded', this.hotel);
@@ -2596,6 +2596,7 @@ __webpack_require__.r(__webpack_exports__);
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _services_api_service__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../services/api-service */ "./resources/js/services/api-service.js");
 /* harmony import */ var _services_alert_service__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../../services/alert-service */ "./resources/js/services/alert-service.js");
+/* harmony import */ var _services_auth_service__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../services/auth-service */ "./resources/js/services/auth-service.js");
 //
 //
 //
@@ -2701,6 +2702,14 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
@@ -2713,10 +2722,14 @@ __webpack_require__.r(__webpack_exports__);
       filteredRooms: [],
       form: {
         name: '',
-        room_id: ''
+        room_id: '',
+        apply_user_info: false,
+        customer_full_name: '',
+        customer_email: ''
       },
       errors: {},
-      booking: null
+      booking: null,
+      authUser: _services_auth_service__WEBPACK_IMPORTED_MODULE_2__["AuthService"].getUser()
     };
   },
   beforeRouteEnter: function beforeRouteEnter(to, from, next) {
@@ -2766,6 +2779,15 @@ __webpack_require__.r(__webpack_exports__);
     });
   },
   methods: {
+    fillInUserInfo: function fillInUserInfo(checked) {
+      if (checked) {
+        this.form.customer_email = this.authUser.email;
+        this.form.customer_full_name = this.authUser.name;
+      } else {
+        this.form.customer_email = this.booking ? this.booking['customer_email'] : '';
+        this.form.customer_full_name = this.booking ? this.booking['customer_full_name'] : '';
+      }
+    },
     setData: function setData(err, data) {
       if (err) {
         this.error = err.toString();
@@ -2777,23 +2799,25 @@ __webpack_require__.r(__webpack_exports__);
     fillInOldFormValues: function fillInOldFormValues() {
       var _this3 = this;
 
+      if (!this.rooms || !this.roomTypes || !this.booking) {
+        return;
+      }
+
       var room = this.rooms.find(function (room) {
         return room.id === _this3.booking.room_id;
       });
 
-      if (!this.rooms || !this.roomTypes || !room) {
-        return;
+      if (room) {
+        this.filterRooms(room.room_type_id);
+        this.form = {
+          room_type_id: room.room_type_id,
+          room_id: room.id,
+          start_date: this.getDatePart(this.booking.start_date),
+          end_date: this.getDatePart(this.booking.end_date),
+          customer_full_name: this.booking['customer_full_name'],
+          customer_email: this.booking['customer_email']
+        };
       }
-
-      this.filterRooms(room.room_type_id);
-      this.form = {
-        room_type_id: room.room_type_id,
-        room_id: room.id,
-        start_date: this.getDatePart(this.booking.start_date),
-        end_date: this.getDatePart(this.booking.end_date),
-        customer_full_name: this.booking['customer_full_name'],
-        customer_email: this.booking['customer_email']
-      };
     },
     getDatePart: function getDatePart(timestamp) {
       // return (new Date( timestamp )).toISOString().split('T')[0];
@@ -2824,7 +2848,7 @@ __webpack_require__.r(__webpack_exports__);
           _services_alert_service__WEBPACK_IMPORTED_MODULE_1__["AlertService"].error(data.message);
         }
       } else {
-        _services_alert_service__WEBPACK_IMPORTED_MODULE_1__["AlertService"].success("Booking updated");
+        _services_alert_service__WEBPACK_IMPORTED_MODULE_1__["AlertService"].success("Booking ".concat(this.booking ? 'updated' : 'created'));
         this.booking = data;
         this.$router.push({
           name: 'booking.index'
@@ -3343,7 +3367,7 @@ __webpack_require__.r(__webpack_exports__);
       error: null,
       minHeight: 0,
       startIndex: 1,
-      isSuperUser: _services_auth_service__WEBPACK_IMPORTED_MODULE_2__["AuthService"].superUser()
+      isSuperUser: _services_auth_service__WEBPACK_IMPORTED_MODULE_2__["AuthService"].isSuperUser()
     };
   },
   beforeRouteEnter: function beforeRouteEnter(to, from, next) {
@@ -3728,7 +3752,7 @@ __webpack_require__.r(__webpack_exports__);
       error: null,
       minHeight: 0,
       startIndex: 1,
-      isSuperUser: _services_auth_service__WEBPACK_IMPORTED_MODULE_2__["AuthService"].superUser()
+      isSuperUser: _services_auth_service__WEBPACK_IMPORTED_MODULE_2__["AuthService"].isSuperUser()
     };
   },
   beforeRouteEnter: function beforeRouteEnter(to, from, next) {
@@ -4109,8 +4133,10 @@ __webpack_require__.r(__webpack_exports__);
       this.message = String(message).trim();
       this.alertClass = 'alert alert-' + (type || 'success');
       setTimeout(function () {
-        document.getElementById('flash-message').setAttribute('style', "display:none");
-        _this2.message = null;
+        try {
+          document.getElementById('flash-message').setAttribute('style', "display:none");
+          _this2.message = null;
+        } catch (error) {}
       }, 5000);
     }
   }
@@ -41724,6 +41750,68 @@ var render = function() {
           ]),
           _vm._v(" "),
           _c("div", { staticClass: "row form-group" }, [
+            _c("div", { staticClass: "col-12" }, [
+              _c("input", {
+                directives: [
+                  {
+                    name: "model",
+                    rawName: "v-model",
+                    value: _vm.form.apply_user_info,
+                    expression: "form.apply_user_info"
+                  }
+                ],
+                staticClass: "form-check-inline",
+                attrs: { type: "checkbox", id: "use_my_info" },
+                domProps: {
+                  checked: Array.isArray(_vm.form.apply_user_info)
+                    ? _vm._i(_vm.form.apply_user_info, null) > -1
+                    : _vm.form.apply_user_info
+                },
+                on: {
+                  change: [
+                    function($event) {
+                      var $$a = _vm.form.apply_user_info,
+                        $$el = $event.target,
+                        $$c = $$el.checked ? true : false
+                      if (Array.isArray($$a)) {
+                        var $$v = null,
+                          $$i = _vm._i($$a, $$v)
+                        if ($$el.checked) {
+                          $$i < 0 &&
+                            _vm.$set(
+                              _vm.form,
+                              "apply_user_info",
+                              $$a.concat([$$v])
+                            )
+                        } else {
+                          $$i > -1 &&
+                            _vm.$set(
+                              _vm.form,
+                              "apply_user_info",
+                              $$a.slice(0, $$i).concat($$a.slice($$i + 1))
+                            )
+                        }
+                      } else {
+                        _vm.$set(_vm.form, "apply_user_info", $$c)
+                      }
+                    },
+                    function($event) {
+                      return _vm.fillInUserInfo($event.target.checked)
+                    }
+                  ]
+                }
+              }),
+              _vm._v(" "),
+              _c(
+                "label",
+                {
+                  staticClass: "col-form-label",
+                  attrs: { for: "use_my_info" }
+                },
+                [_vm._v("Fill in my Name and Email")]
+              )
+            ]),
+            _vm._v(" "),
             _c("div", { staticClass: "col-12 col-sm-6" }, [
               _c(
                 "label",
@@ -58044,9 +58132,13 @@ __webpack_require__.r(__webpack_exports__);
 __webpack_require__(/*! ./bootstrap */ "./resources/js/bootstrap.js");
 
 window.Vue = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.common.js");
+
+
+/**
+ * Register global Event Bus
+ */
+
 window.vmEvents = new Vue();
-
-
 /**
  * The following block of code may be used to automatically register your
  * Vue components. It will recursively scan this directory for the Vue
@@ -59998,18 +60090,36 @@ var ApiService = {
   tokenSet: false,
   setBearer: function setBearer() {
     if (!_auth_service__WEBPACK_IMPORTED_MODULE_1__["AuthService"].tokenSet) {
-      var cookie = _auth_service__WEBPACK_IMPORTED_MODULE_1__["AuthService"].getCookie();
-      axios__WEBPACK_IMPORTED_MODULE_0___default.a.defaults.headers.common['Authorization'] = 'Bearer ' + (cookie ? cookie.token : '');
+      var user = _auth_service__WEBPACK_IMPORTED_MODULE_1__["AuthService"].getUser();
+      axios__WEBPACK_IMPORTED_MODULE_0___default.a.defaults.headers.common['Authorization'] = 'Bearer ' + (user ? user.token : '');
       _auth_service__WEBPACK_IMPORTED_MODULE_1__["AuthService"].tokenSet = true;
     }
 
     return this;
   },
+  // errorHandler(callback){
+  //   axios.interceptors.response.use(
+  //     function (response) {
+  //       // console.log('errorHandler response: ', response);
+  //       return response;
+  //     },
+  //     function (error) {
+  //       // console.log('errorHandler error: ', error);
+  //       if(error.response){
+  //         alert(error.response.data.message);
+  //         callback(error, (error.response ? error.response.data : null));
+  //       }
+  //     }
+  //   );
+  // },
   handleRequest: function handleRequest(request, callback) {
+    // this.errorHandler(callback);
     request.then(function (response) {
+      // console.log('handleRequest response: ', response);
       callback(null, response.data);
     })["catch"](function (error) {
-      callback(error, error.response.data);
+      // console.log('handleRequest error: ', error);
+      callback(error, error.response ? error.response.data : null);
     });
   },
   getPaginated: function getPaginated(url, params, callback) {
@@ -60204,9 +60314,12 @@ var AuthService = {
   userAuthenticated: function userAuthenticated() {
     return _storage_service__WEBPACK_IMPORTED_MODULE_1__["StorageService"].getSession(sessionKey);
   },
-  superUser: function superUser() {
-    var token = AuthService.getCookie();
-    return _typeof(token) === 'object' && token.role === 'admin';
+  getUser: function getUser() {
+    return AuthService.getCookie();
+  },
+  isSuperUser: function isSuperUser() {
+    var user = AuthService.getUser();
+    return _typeof(user) === 'object' && user.role === 'admin';
   }
 };
 
@@ -60320,7 +60433,7 @@ router.beforeEach(function (to, from, next) {
     return record.meta.requiresSU;
   });
   var isLoggedIn = _auth_service__WEBPACK_IMPORTED_MODULE_2__["AuthService"].userAuthenticated();
-  var isAdmin = _auth_service__WEBPACK_IMPORTED_MODULE_2__["AuthService"].superUser();
+  var isAdmin = _auth_service__WEBPACK_IMPORTED_MODULE_2__["AuthService"].isSuperUser();
   var signInRoute = '/login';
   var noAuthRoute = {
     name: 'error',

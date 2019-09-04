@@ -68,6 +68,13 @@
         </div>
 
         <div class="row form-group">
+          <!-- Fill in User Info -->
+          <div class="col-12">
+            <input type="checkbox" id="use_my_info" class="form-check-inline"
+                   v-model="form.apply_user_info" @change="fillInUserInfo($event.target.checked)" />
+            <label class="col-form-label" for="use_my_info">Fill in my Name and Email</label>
+          </div>
+
           <!-- Customer Name -->
           <div class="col-12 col-sm-6">
             <label class="col-form-label" for="customer_full_name">* Full Name</label>
@@ -106,6 +113,7 @@
 <script>
   import { ApiService } from '../../../services/api-service';
   import {AlertService} from "../../../services/alert-service";
+  import {AuthService} from "../../../services/auth-service";
 
   export default {
     name: 'BookingCreate',
@@ -117,10 +125,11 @@
         rooms: [],
         filteredRooms: [],
         form: {
-          name: '', room_id: ''
+          name: '', room_id: '', apply_user_info: false, customer_full_name: '', customer_email: ''
         },
         errors: {},
-        booking: null
+        booking: null,
+        authUser: AuthService.getUser(),
       };
     },
 
@@ -166,6 +175,17 @@
     },
 
     methods: {
+      fillInUserInfo(checked){
+        if(checked){
+          this.form.customer_email = this.authUser.email;
+          this.form.customer_full_name = this.authUser.name;
+        }
+        else {
+          this.form.customer_email = this.booking ? this.booking['customer_email'] : '';
+          this.form.customer_full_name = this.booking ? this.booking['customer_full_name'] : '';
+        }
+      },
+
       setData(err, data) {
         if (err) {
           this.error = err.toString();
@@ -177,22 +197,24 @@
       },
 
       fillInOldFormValues(){
-        let room = this.rooms.find(room => room.id === this.booking.room_id);
-
-        if( ! this.rooms || ! this.roomTypes || ! room){
+        if(! this.rooms || ! this.roomTypes || ! this.booking){
           return;
         }
 
-        this.filterRooms( room.room_type_id );
+        let room = this.rooms.find(room => room.id === this.booking.room_id);
 
-        this.form = {
-          room_type_id: room.room_type_id,
-          room_id: room.id,
-          start_date: this.getDatePart( this.booking.start_date ),
-          end_date: this.getDatePart( this.booking.end_date ),
-          customer_full_name: this.booking['customer_full_name'],
-          customer_email: this.booking['customer_email'],
-        };
+        if(room){
+          this.filterRooms( room.room_type_id );
+
+          this.form = {
+            room_type_id: room.room_type_id,
+            room_id: room.id,
+            start_date: this.getDatePart( this.booking.start_date ),
+            end_date: this.getDatePart( this.booking.end_date ),
+            customer_full_name: this.booking['customer_full_name'],
+            customer_email: this.booking['customer_email'],
+          };
+        }
       },
 
       getDatePart(timestamp){
@@ -231,7 +253,7 @@
           }
         }
         else {
-          AlertService.success("Booking updated");
+          AlertService.success(`Booking ${this.booking ? 'updated' : 'created'}`);
           this.booking = data;
           this.$router.push({ name: 'booking.index'});
         }
